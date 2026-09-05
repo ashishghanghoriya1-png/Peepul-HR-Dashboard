@@ -1,0 +1,317 @@
+table 'Current Employee Data'
+	lineageTag: e91c2490-fc50-4582-86fc-b69cbf016330
+
+	measure 'Total Active Open Roles' = COUNTROWS ( 'Current Active Hiring' )
+		formatString: #,##0
+		displayFolder: Peepul Measures;qwen
+		lineageTag: dffcbde2-b020-410e-8613-cbb4a3756077
+
+	measure 'Total Active Open Positions' = SUM ( 'Current Active Hiring'[No of positions] )
+		formatString: #,##0
+		displayFolder: Peepul Measures;qwen
+		lineageTag: 8de986d4-1e23-437d-a25d-32a0128e2335
+
+	measure 'Active Backfill Positions' = SUM ( 'Current Active Hiring'[Back Fills] )
+		formatString: #,##0
+		displayFolder: Peepul Measures;qwen
+		lineageTag: 58a53663-1e0e-4276-b1ce-85b6acb6d649
+
+	measure 'Active New Hire Positions' = SUM ( 'Current Active Hiring'[New Hires] )
+		formatString: #,##0
+		displayFolder: Peepul Measures;qwen
+		lineageTag: 17d81089-8498-468c-bc14-ec73a590a30f
+
+	measure 'Backfill vs New Hire Ratio %' = DIVIDE ( SUM ( 'Current Active Hiring'[Back Fills] ), SUM ( 'Current Active Hiring'[New Hires] ), 0 )
+		formatString: 0.0%
+		displayFolder: Peepul Measures;qwen
+		lineageTag: 637c26b6-55ac-4c8c-bcfa-53acff4c72b9
+
+	measure 'Avg Days Active Role Opened' = AVERAGE ( 'Current Active Hiring'[Days Since Role Opened] )
+		formatString: #,##0.0
+		displayFolder: Peepul Measures;qwen
+		lineageTag: 6f708652-35c4-4ee6-811c-d3bf93381152
+
+	measure 'Total Roles Closed' = COUNTROWS ( 'Roles Closed' )
+		formatString: #,##0
+		displayFolder: Peepul Measures;qwen
+		lineageTag: 9abeba4e-3441-4bf2-9490-9cd457e156fa
+
+	measure 'Total Closed Positions' = SUM ( 'Roles Closed'[No of positions] )
+		formatString: #,##0
+		displayFolder: Peepul Measures;qwen
+		lineageTag: b63e5ed3-0ae4-4bfc-8067-c15c09ac0e8f
+
+	measure 'Average Turnaround Time (Days)' = AVERAGE ( 'Roles Closed'[Turn Around Time (in Days)] )
+		formatString: #,##0.0
+		displayFolder: Peepul Measures;qwen
+		lineageTag: 16eb88d4-4b8e-438b-a186-924024900fbc
+
+	measure 'Fastest Role Closure Days' = MIN ( 'Roles Closed'[Turn Around Time (in Days)] )
+		formatString: #,##0
+		displayFolder: Peepul Measures;qwen
+		lineageTag: a86b6a5f-221d-43dc-9fcd-059811b87e32
+
+	measure 'Slowest Role Closure Days' = MAX ( 'Roles Closed'[Turn Around Time (in Days)] )
+		formatString: #,##0
+		displayFolder: Peepul Measures;qwen
+		lineageTag: e3abf672-675d-4394-93a5-27d028aee89a
+
+	measure 'Roles Closed Fastest' = VAR MinTAT = MIN ( 'Roles Closed'[Turn Around Time (in Days)] ) RETURN CONCATENATEX ( FILTER ( 'Roles Closed', 'Roles Closed'[Turn Around Time (in Days)] = MinTAT ), 'Roles Closed'[Open Roles], ", " )
+		displayFolder: Peepul Measures;qwen
+		lineageTag: 8f599253-27fa-42dc-a1a1-2c48ad78211c
+
+	measure 'Roles Closed Slowest' = VAR MaxTAT = MAX ( 'Roles Closed'[Turn Around Time (in Days)] ) RETURN CONCATENATEX ( FILTER ( 'Roles Closed', 'Roles Closed'[Turn Around Time (in Days)] = MaxTAT ), 'Roles Closed'[Open Roles], ", " )
+		displayFolder: Peepul Measures;qwen
+		lineageTag: 4c6aa6b6-bd92-4091-a3cf-81c98a9e277d
+
+	measure 'Best Source for Applications (Lowest Avg TAT)' = TOPN ( 1, FILTER ( VALUES ( 'Roles Closed'[Hiring Source] ), NOT ISBLANK ( 'Roles Closed'[Hiring Source] ) ), CALCULATE ( AVERAGE ( 'Roles Closed'[Turn Around Time (in Days)] ) ), ASC )
+		displayFolder: Peepul Measures;qwen
+		lineageTag: a8e10795-7823-42fa-ae6f-f3077b90756c
+
+	measure 'Worst Source for Applications (Highest Avg TAT)' = TOPN ( 1, FILTER ( VALUES ( 'Roles Closed'[Hiring Source] ), NOT ISBLANK ( 'Roles Closed'[Hiring Source] ) ), CALCULATE ( AVERAGE ( 'Roles Closed'[Turn Around Time (in Days)] ) ), DESC )
+		displayFolder: Peepul Measures;qwen
+		lineageTag: 78166e96-1e72-47a1-8ae6-7f515b03523e
+
+	measure 'Active Headcount' = COUNTROWS ( 'Current Employee Data' )
+		formatString: #,##0
+		displayFolder: Peepul Measures;qwen
+		lineageTag: 17f7cd8e-fc4d-4a18-8a8a-412ca506b2a2
+
+	measure 'Active Male Count' = CALCULATE ( COUNTROWS ( 'Current Employee Data' ), TRIM ( 'Current Employee Data'[Gender] ) = "Male" )
+		formatString: #,##0
+		displayFolder: Peepul Measures;qwen
+		lineageTag: 4a1ca1c4-99cf-4431-ac81-22fa697a688c
+
+	measure 'Active Female Count' = CALCULATE ( COUNTROWS ( 'Current Employee Data' ), TRIM ( 'Current Employee Data'[Gender] ) = "Female" )
+		formatString: #,##0
+		displayFolder: Peepul Measures;qwen
+		lineageTag: fc5e73c2-7c22-4630-989d-9f8cef49cf5b
+
+	measure 'Active Female %' = DIVIDE ( CALCULATE ( COUNTROWS ( 'Current Employee Data' ), TRIM ( 'Current Employee Data'[Gender] ) = "Female" ), COUNTROWS ( 'Current Employee Data' ), 0 )
+		formatString: 0.0%
+		displayFolder: Peepul Measures;qwen
+		lineageTag: dfd66087-273c-459b-8260-3dc72d46f59d
+
+	measure 'Active Male %' = DIVIDE ( CALCULATE ( COUNTROWS ( 'Current Employee Data' ), TRIM ( 'Current Employee Data'[Gender] ) = "Male" ), COUNTROWS ( 'Current Employee Data' ), 0 )
+		formatString: 0.0%
+		displayFolder: Peepul Measures;qwen
+		lineageTag: 5cd17c0b-e405-4b0d-87c8-38680804c1b4
+
+	measure 'Avg Active Tenure (Years)' = AVERAGEX ( 'Current Employee Data', DIVIDE ( DATEDIFF ( 'Current Employee Data'[Date of joining], TODAY (), DAY ), 365.25 ) )
+		formatString: #,##0.0
+		displayFolder: Peepul Measures;qwen
+		lineageTag: dc71bbc9-76d5-421f-aff4-e3ea317c2355
+
+	measure 'Team Longest Serving' = TOPN ( 1, VALUES ( 'Current Employee Data'[Team] ), AVERAGEX ( 'Current Employee Data', DIVIDE ( DATEDIFF ( 'Current Employee Data'[Date of joining], TODAY (), DAY ), 365.25 ) ), DESC )
+		displayFolder: Peepul Measures;qwen
+		lineageTag: 3ea256fd-f8f4-40e6-826f-d5dafbad629b
+
+	measure 'Total Exits Count' = COUNTROWS ( 'Exit Employee Data' )
+		formatString: #,##0
+		displayFolder: Peepul Measures;qwen
+		lineageTag: c03355f1-ce6d-4ba1-ac63-f9eb99b5f840
+
+	measure 'Total Workforce Ever' = COUNTROWS ( 'Current Employee Data' ) + COUNTROWS ( 'Exit Employee Data' )
+		formatString: #,##0
+		displayFolder: Peepul Measures;qwen
+		lineageTag: 010f8072-0270-47af-bbae-936189ee491f
+
+	measure 'Attrition Rate % (Active Basis)' = DIVIDE ( COUNTROWS ( 'Exit Employee Data' ), COUNTROWS ( 'Current Employee Data' ), 0 )
+		formatString: 0.0%
+		displayFolder: Peepul Measures;qwen
+		lineageTag: 69334851-7255-40ac-87c5-84a6a91f31e1
+
+	measure 'Avg Exit Tenure (Years)' = AVERAGEX ( 'Exit Employee Data', DIVIDE ( DATEDIFF ( 'Exit Employee Data'[Date of joining], 'Exit Employee Data'[Last working day], DAY ), 365.25 ) )
+		formatString: #,##0.0
+		displayFolder: Peepul Measures;qwen
+		lineageTag: 706419bd-ca84-402a-a082-6d87ee0ab0a0
+
+	measure 'Team Worst Attrition' = TOPN ( 1, VALUES ( 'Exit Employee Data'[Team] ), DIVIDE ( COUNTROWS ( 'Exit Employee Data' ), COUNTROWS ( 'Current Employee Data' ), 0 ), DESC )
+		displayFolder: Peepul Measures;qwen
+		lineageTag: 76279922-6c51-4bca-9bba-d02767e70769
+
+	measure 'Role Level Highest Attrition' = TOPN ( 1, VALUES ( 'Exit Employee Data'[Role Level ] ), COUNTROWS ( 'Exit Employee Data' ), DESC )
+		displayFolder: Peepul Measures;qwen
+		lineageTag: 81defe9e-7048-4346-99fc-6b2704503136
+
+	measure 'Role Level Lowest Attrition' = TOPN ( 1, VALUES ( 'Exit Employee Data'[Role Level ] ), COUNTROWS ( 'Exit Employee Data' ), ASC )
+		displayFolder: Peepul Measures;qwen
+		lineageTag: 84a5329c-b76d-400a-801e-6ee50dba382f
+
+	measure 'Top Reason for Leaving' = TOPN ( 1, VALUES ( 'Exit Employee Data'[Reason for Leaving] ), COUNTROWS ( 'Exit Employee Data' ), DESC )
+		displayFolder: Peepul Measures;qwen
+		lineageTag: 98f42937-02c2-49d7-a895-b75738818c23
+
+	measure 'Department Worst Attrition' = TOPN ( 1, VALUES ( 'Exit Employee Data'[Department] ), DIVIDE ( COUNTROWS ( 'Exit Employee Data' ), COUNTROWS ( 'Current Employee Data' ), 0 ), DESC )
+		displayFolder: Peepul Measures;qwen
+		lineageTag: 54cfc4d1-6929-4417-9c2d-6ad530114e56
+
+	measure 'Exit Female Count' = CALCULATE ( COUNTROWS ( 'Exit Employee Data' ), TRIM ( 'Exit Employee Data'[Gender] ) = "Female" )
+		formatString: #,##0
+		displayFolder: Peepul Measures;qwen
+		lineageTag: d6768075-74f3-4be2-9e19-94f4f1f49ab5
+
+	measure 'Exit Male Count' = CALCULATE ( COUNTROWS ( 'Exit Employee Data' ), TRIM ( 'Exit Employee Data'[Gender] ) = "Male" )
+		formatString: #,##0
+		displayFolder: Peepul Measures;qwen
+		lineageTag: c30f4d11-dc44-4fb8-876e-41006c4c9041
+
+	measure 'Exit Female %' = DIVIDE ( CALCULATE ( COUNTROWS ( 'Exit Employee Data' ), TRIM ( 'Exit Employee Data'[Gender] ) = "Female" ), COUNTROWS ( 'Exit Employee Data' ), 0 )
+		formatString: 0.0%
+		displayFolder: Peepul Measures;qwen
+		lineageTag: 036ded40-e140-47f7-bc01-964e0d8a1241
+
+	measure 'Net Headcount Movement' = COUNTROWS ( 'Current Employee Data' ) - COUNTROWS ( 'Exit Employee Data' )
+		formatString: #,##0
+		displayFolder: Peepul Measures;qwen
+		lineageTag: 3a94ef69-7508-44dd-a9cb-8e083f1a14e2
+
+	measure 'Active Manager Count' = DISTINCTCOUNT ( 'Current Employee Data'[Reporting To (Manager Name)] )
+		formatString: #,##0
+		displayFolder: Peepul Measures;qwen
+		lineageTag: f3441d44-7d31-4622-968a-17ad5fb30aac
+
+	measure 'Avg Span of Control' = DIVIDE ( COUNTROWS ( 'Current Employee Data' ), DISTINCTCOUNT ( 'Current Employee Data'[Reporting To (Manager Name)] ), 0 )
+		formatString: #,##0.0
+		displayFolder: Peepul Measures;qwen
+		lineageTag: 3734361f-baac-494d-b100-49aa5cbd576f
+
+	measure 'Net Growth Rate %' = DIVIDE ( COUNTROWS ( 'Current Employee Data' ) - COUNTROWS ( 'Exit Employee Data' ), COUNTROWS ( 'Current Employee Data' ) + COUNTROWS ( 'Exit Employee Data' ), 0 )
+		formatString: 0.0%
+		displayFolder: Peepul Measures;qwen
+		lineageTag: b78db431-a48d-4275-a8cf-c3fc1d954d5f
+
+	column 'Sr No.'
+		dataType: int64
+		formatString: 0
+		lineageTag: db4767f5-a06a-4f0d-8851-594a9af5db6e
+		summarizeBy: sum
+		sourceColumn: Sr No.
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Employee ID'
+		dataType: string
+		lineageTag: 18f984c2-78a0-4c2e-ba54-eef54cd4254f
+		summarizeBy: none
+		sourceColumn: Employee ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Full Name'
+		dataType: string
+		lineageTag: 7c3a6d30-1238-46e4-ada5-9743ffd53478
+		summarizeBy: none
+		sourceColumn: Full Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column Department
+		dataType: string
+		lineageTag: 55df71cb-259b-4076-95b1-4420715fb2f8
+		summarizeBy: none
+		sourceColumn: Department
+
+		annotation SummarizationSetBy = Automatic
+
+	column Designation
+		dataType: string
+		lineageTag: e03214f6-dca9-4ca8-a17e-88d6060a1f2e
+		summarizeBy: none
+		sourceColumn: Designation
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Role Level '
+		dataType: string
+		lineageTag: b1a1c402-a80b-4f9a-9036-7003c3c0380b
+		summarizeBy: none
+		sourceColumn: "Role Level "
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'For Comms '
+		dataType: string
+		lineageTag: e41443d0-aad5-4034-b4ef-79a242206a31
+		summarizeBy: none
+		sourceColumn: "For Comms "
+
+		annotation SummarizationSetBy = Automatic
+
+	column Team
+		dataType: string
+		lineageTag: faecd2c8-f13b-4f0e-ac9e-f8fcf0634932
+		summarizeBy: none
+		sourceColumn: Team
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Reporting To (Manager Name)'
+		dataType: string
+		lineageTag: c7590ef8-6bcd-4f93-9269-4347c73b4fae
+		summarizeBy: none
+		sourceColumn: Reporting To (Manager Name)
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Date of joining'
+		dataType: string
+		lineageTag: 61267633-b221-4681-9db5-d4096975bcdd
+		summarizeBy: none
+		sourceColumn: Date of joining
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Employement category '
+		dataType: string
+		lineageTag: 89037017-4c14-4952-ac19-5eeef262dd17
+		summarizeBy: none
+		sourceColumn: "Employement category "
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Date of probation Confirmation'
+		dataType: string
+		lineageTag: 3ac30063-8123-4527-bc62-73fb5998f1a0
+		summarizeBy: none
+		sourceColumn: Date of probation Confirmation
+
+		annotation SummarizationSetBy = Automatic
+
+	column Tenure
+		dataType: string
+		lineageTag: 02bf1e10-8e8d-4550-801e-5ed8684f2e19
+		summarizeBy: none
+		sourceColumn: Tenure
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Location '
+		dataType: string
+		lineageTag: 631cbd80-eb12-41ab-b8ac-729baf4e1978
+		summarizeBy: none
+		sourceColumn: "Location "
+
+		annotation SummarizationSetBy = Automatic
+
+	column Gender
+		dataType: string
+		lineageTag: a1a3fdda-f021-46f8-86be-19835ba3331a
+		summarizeBy: none
+		sourceColumn: Gender
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Current Employee Data' = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("C:\Users\Peepul\OneDrive - Absolute Return For Kids\HR Dashboard Files\HR Data.xlsx"), null, true),
+				    #"Current Employee Data_Sheet" = Source{[Item="Current Employee Data",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(#"Current Employee Data_Sheet", [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Sr No.", Int64.Type}, {"Employee ID", type text}, {"Full Name", type text}, {"Department", type text}, {"Designation", type text}, {"Role Level ", type text}, {"For Comms ", type text}, {"Team", type text}, {"Reporting To (Manager Name)", type text}, {"Date of joining", type any}, {"Employement category ", type text}, {"Date of probation Confirmation", type any}, {"Tenure", type any}, {"Location ", type text}, {"Gender", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

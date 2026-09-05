@@ -1,0 +1,124 @@
+table 'Current Active Hiring'
+	lineageTag: 7ed9c1b1-4fe4-40b9-b24c-7c20d6f9adec
+
+	column Team
+		dataType: string
+		lineageTag: bce97ed6-dece-4bb5-bc62-381d834d9730
+		summarizeBy: none
+		sourceColumn: Team
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Open Role'
+		dataType: string
+		lineageTag: 63e83103-a345-47c3-946a-c88e29d40dfc
+		summarizeBy: none
+		sourceColumn: Open Role
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'No of positions'
+		dataType: int64
+		formatString: 0
+		lineageTag: a6ed00ef-3176-45c4-8d1f-d1b4f7c88c83
+		summarizeBy: sum
+		sourceColumn: No of positions
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Back Fills'
+		dataType: int64
+		formatString: 0
+		lineageTag: dda69917-1e31-499e-8c11-7a77645d7c13
+		summarizeBy: sum
+		sourceColumn: Back Fills
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'New Hires'
+		dataType: int64
+		formatString: 0
+		lineageTag: bc771056-b17f-461a-9069-742cc3799aed
+		summarizeBy: sum
+		sourceColumn: New Hires
+
+		annotation SummarizationSetBy = Automatic
+
+	column Location
+		dataType: string
+		lineageTag: 0bb273cd-a003-47f8-9c6f-18c915a1b8d4
+		summarizeBy: none
+		sourceColumn: Location
+
+		annotation SummarizationSetBy = Automatic
+
+	column Lead
+		dataType: string
+		lineageTag: d9205667-cbc3-45ca-914e-3452531572ca
+		summarizeBy: none
+		sourceColumn: Lead
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Role Opened Date'
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 2065a9ec-8907-4ffc-9252-8d082ba4c625
+		summarizeBy: none
+		sourceColumn: Role Opened Date
+
+		variation Variation
+			isDefault
+			relationship: f5342149-d34b-488c-ac6b-f5483fb11084
+			defaultHierarchy: LocalDateTable_8a232fb8-f195-4e86-a242-c0defb477472.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Days Since Role Opened'
+		dataType: int64
+		formatString: 0
+		lineageTag: 78db3b43-666b-4728-961b-3e5b580d8168
+		summarizeBy: sum
+		sourceColumn: Days Since Role Opened
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Outreach Efforts'
+		dataType: string
+		lineageTag: 5f31fd1e-cb0c-4a29-bf7a-4ed36f7b7b5d
+		summarizeBy: none
+		sourceColumn: Outreach Efforts
+
+		annotation SummarizationSetBy = Automatic
+
+	column Support
+		dataType: string
+		lineageTag: 43882248-f5f9-4a42-b2da-168d3a1bc726
+		summarizeBy: none
+		sourceColumn: Support
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Role Level'
+		dataType: string
+		lineageTag: d4948d3f-f385-43bc-ab28-a35b32d1e760
+		summarizeBy: none
+		sourceColumn: Role Level
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Current Active Hiring' = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("C:\Users\Peepul\OneDrive - Absolute Return For Kids\HR Dashboard Files\HR Data.xlsx"), null, true),
+				    #"Current Active Hiring_Sheet" = Source{[Item="Current Active Hiring",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(#"Current Active Hiring_Sheet", [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Team", type text}, {"Open Role", type text}, {"No of positions", Int64.Type}, {"Back Fills", Int64.Type}, {"New Hires", Int64.Type}, {"Location", type text}, {"Lead", type text}, {"Role Opened Date", type date}, {"Days Since Role Opened", Int64.Type}, {"Outreach Efforts", type text}, {"Support", type text}, {"Role Level", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,30 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	valueFilterBehavior: independent
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBI_QueryOrder = ["Current Active Hiring","Current Employee Data","Roles Closed","Exit Employee Data"]
+
+annotation PBI_ProTooling = ["DevMode"]
+
+annotation __TEdtr = 1
+
+ref table 'Current Active Hiring'
+ref table DateTableTemplate_b3e1f142-a01f-4036-a03f-e69babc50460
+ref table LocalDateTable_8a232fb8-f195-4e86-a242-c0defb477472
+ref table 'Current Employee Data'
+ref table 'Roles Closed'
+ref table LocalDateTable_12462913-e76c-481a-8cd1-3e9dc1f07893
+ref table 'Exit Employee Data'
+ref table LocalDateTable_5c7c3952-4e71-4453-bfde-312b40245d75
+ref table 'Calculate Date Peepul'
+ref table LocalDateTable_8e1b4308-bb35-4cd2-979a-9d65bf17726c
+
+ref cultureInfo en-US
+

@@ -1,0 +1,32 @@
+relationship f5342149-d34b-488c-ac6b-f5483fb11084
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'Current Active Hiring'.'Role Opened Date'
+	toColumn: LocalDateTable_8a232fb8-f195-4e86-a242-c0defb477472.Date
+
+relationship ceb77680-e9cf-4a8c-a4df-b2571766ec47
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'Roles Closed'.'Role Opened Date'
+	toColumn: LocalDateTable_12462913-e76c-481a-8cd1-3e9dc1f07893.Date
+
+relationship c10fbe40-5968-4754-8bca-5c5e952981ae
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'Exit Employee Data'.'Date of joining'
+	toColumn: LocalDateTable_5c7c3952-4e71-4453-bfde-312b40245d75.Date
+
+relationship db9c89d1-bade-46fa-b4b8-a642eb4c8650
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'Calculate Date Peepul'.Date
+	toColumn: LocalDateTable_8e1b4308-bb35-4cd2-979a-9d65bf17726c.Date
+
+relationship b32741da-dff0-a128-3ba2-b9304160776a
+	isActive: false
+	crossFilteringBehavior: bothDirections
+	fromColumn: 'Current Employee Data'.'Date of joining'
+	toColumn: 'Calculate Date Peepul'.Date
+
+relationship 8a46dc65-fab3-e315-8a27-7f42ff75c4c5
+	isActive: false
+	crossFilteringBehavior: bothDirections
+	fromColumn: 'Exit Employee Data'.'Last working day'
+	toColumn: 'Calculate Date Peepul'.Date
+

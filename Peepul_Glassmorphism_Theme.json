@@ -1,0 +1,84 @@
+{
+  "name": "Peepul HR Glassmorphism Dark Theme",
+  "dataColors": [
+    "#00F2FE",
+    "#FF5722",
+    "#4FACFE",
+    "#FF7E5F",
+    "#00E5FF",
+    "#FF4081",
+    "#7F00FF",
+    "#38EF7D"
+  ],
+  "background": "#0D1117",
+  "foreground": "#FFFFFF",
+  "tableAccent": "#00F2FE",
+  "visualStyles": {
+    "*": {
+      "*": {
+        "background": [
+          {
+            "show": true,
+            "color": {
+              "solid": {
+                "color": "#141B26"
+              }
+            },
+            "transparency": 15
+          }
+        ],
+        "border": [
+          {
+            "show": true,
+            "color": {
+              "solid": {
+                "color": "#00F2FE"
+              }
+            },
+            "radius": 16
+          }
+        ],
+        "dropShadow": [
+          {
+            "show": true,
+            "color": {
+              "solid": {
+                "color": "#00F2FE"
+              }
+            },
+            "position": "Custom",
+            "preset": "Custom",
+            "blur": 16,
+            "distance": 0,
+            "transparency": 50
+          }
+        ]
+      }
+    },
+    "card": {
+      "*": {
+        "labels": [
+          {
+            "color": {
+              "solid": {
+                "color": "#FFFFFF"
+              }
+            },
+            "fontSize": 28,
+            "fontFamily": "Segoe UI Semibold"
+          }
+        ],
+        "categoryAxis": [
+          {
+            "color": {
+              "solid": {
+                "color": "#94A3B8"
+              }
+            },
+            "fontSize": 10
+          }
+        ]
+      }
+    }
+  }
+}

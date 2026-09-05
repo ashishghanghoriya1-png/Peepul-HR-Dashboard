@@ -1,0 +1,84 @@
+{
+  "name": "CY26SU07",
+  "dataColors": [
+    "#00F2FE",
+    "#9D00FF",
+    "#FF5722",
+    "#00E5FF",
+    "#7F00FF",
+    "#FF4081",
+    "#38EF7D",
+    "#FFB703"
+  ],
+  "background": "#F8FAFC",
+  "foreground": "#0F172A",
+  "tableAccent": "#00F2FE",
+  "visualStyles": {
+    "*": {
+      "*": {
+        "background": [
+          {
+            "show": true,
+            "color": {
+              "solid": {
+                "color": "#FFFFFF"
+              }
+            },
+            "transparency": 0
+          }
+        ],
+        "border": [
+          {
+            "show": true,
+            "color": {
+              "solid": {
+                "color": "#00F2FE"
+              }
+            },
+            "radius": 16
+          }
+        ],
+        "dropShadow": [
+          {
+            "show": true,
+            "color": {
+              "solid": {
+                "color": "#00F2FE"
+              }
+            },
+            "position": "Custom",
+            "preset": "Custom",
+            "blur": 16,
+            "distance": 0,
+            "transparency": 70
+          }
+        ]
+      }
+    },
+    "card": {
+      "*": {
+        "labels": [
+          {
+            "color": {
+              "solid": {
+                "color": "#0F172A"
+              }
+            },
+            "fontSize": 28,
+            "fontFamily": "Segoe UI Semibold"
+          }
+        ],
+        "categoryAxis": [
+          {
+            "color": {
+              "solid": {
+                "color": "#64748B"
+              }
+            },
+            "fontSize": 10
+          }
+        ]
+      }
+    }
+  }
+}

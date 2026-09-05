@@ -1,0 +1,114 @@
+table 'Roles Closed'
+	lineageTag: e9bc394d-16b1-4aa1-9ce7-6e0d166949b6
+
+	column 'S. No.'
+		dataType: int64
+		formatString: 0
+		lineageTag: 3aa0e7ef-7913-4ce1-9f10-69da0835f7e1
+		summarizeBy: sum
+		sourceColumn: S. No.
+
+		annotation SummarizationSetBy = Automatic
+
+	column Team
+		dataType: string
+		lineageTag: 5eaa9c25-4837-410c-b27f-13eeb5f07ccb
+		summarizeBy: none
+		sourceColumn: Team
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Open Roles'
+		dataType: string
+		lineageTag: 64cdafe5-2671-418d-a7a6-33d0b32de620
+		summarizeBy: none
+		sourceColumn: Open Roles
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'No of positions'
+		dataType: string
+		lineageTag: 4f7946a8-a217-4329-b55c-77a5abc90762
+		summarizeBy: none
+		sourceColumn: No of positions
+
+		annotation SummarizationSetBy = Automatic
+
+	column Location
+		dataType: string
+		lineageTag: 7a6ca130-2c08-46fa-89b1-2d7509f4981d
+		summarizeBy: none
+		sourceColumn: Location
+
+		annotation SummarizationSetBy = Automatic
+
+	column Lead
+		dataType: string
+		lineageTag: 71ab5129-8ff3-41a6-b09d-a20b01981e9b
+		summarizeBy: none
+		sourceColumn: Lead
+
+		annotation SummarizationSetBy = Automatic
+
+	column Status
+		dataType: string
+		lineageTag: 7db0d5d0-d103-4f3f-be80-b5cb65311f4f
+		summarizeBy: none
+		sourceColumn: Status
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Hiring Source'
+		dataType: string
+		lineageTag: bf59f74d-66a7-44f2-8675-83b03a04d36c
+		summarizeBy: none
+		sourceColumn: Hiring Source
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Role Opened Date'
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 5e9a1707-1e02-4b12-867b-85e59eb08015
+		summarizeBy: none
+		sourceColumn: Role Opened Date
+
+		variation Variation
+			isDefault
+			relationship: ceb77680-e9cf-4a8c-a4df-b2571766ec47
+			defaultHierarchy: LocalDateTable_12462913-e76c-481a-8cd1-3e9dc1f07893.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Role Closed Date'
+		dataType: string
+		lineageTag: 25a7e53d-7561-4301-95a5-1b5972928031
+		summarizeBy: none
+		sourceColumn: Role Closed Date
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Turn Around Time (in Days)'
+		dataType: int64
+		formatString: 0
+		lineageTag: 6350c491-f7bc-42a6-98f7-d4dada719af6
+		summarizeBy: sum
+		sourceColumn: Turn Around Time (in Days)
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Roles Closed' = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("C:\Users\Peepul\OneDrive - Absolute Return For Kids\HR Dashboard Files\HR Data.xlsx"), null, true),
+				    #"Roles Closed_Sheet" = Source{[Item="Roles Closed",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(#"Roles Closed_Sheet", [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"S. No.", Int64.Type}, {"Team", type text}, {"Open Roles", type text}, {"No of positions", type any}, {"Location", type text}, {"Lead", type text}, {"Status", type text}, {"Hiring Source", type text}, {"Role Opened Date", type date}, {"Role Closed Date", type any}, {"Turn Around Time (in Days)", Int64.Type}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

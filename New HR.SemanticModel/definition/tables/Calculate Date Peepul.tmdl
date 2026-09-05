@@ -1,0 +1,174 @@
+table 'Calculate Date Peepul'
+	lineageTag: b8521b69-0869-464b-a9d2-0af700b5f9e2
+
+	column Date
+		formatString: General Date
+		lineageTag: 51584f03-58cb-4c5c-9fe9-2810dfb93287
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Date]
+
+		variation Variation
+			isDefault
+			relationship: db9c89d1-bade-46fa-b4b8-a642eb4c8650
+			defaultHierarchy: LocalDateTable_8e1b4308-bb35-4cd2-979a-9d65bf17726c.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column Year
+		formatString: 0
+		lineageTag: be3ce977-37b9-4386-83a8-32e64e362529
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Year]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Quinquenio
+		lineageTag: 2332775d-9d99-4669-9a50-f96744502e21
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Quinquenio]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Year Ending'
+		lineageTag: f447700f-3601-45ed-8fc4-8aa319f1ee8f
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Year Ending]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Month
+		formatString: 0
+		lineageTag: de852691-7451-4dea-94c6-3ac37c31d9e6
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Month]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Month Name'
+		lineageTag: 10940942-a933-4697-8a96-19001322f5c2
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Month Name]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Month Short'
+		lineageTag: 9bd00cfd-979f-44d6-8df1-9b243c1e93e5
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Month Short]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Month Initial'
+		lineageTag: 75097de3-b804-43d6-906e-1eb3a57e55df
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Month Initial]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Week
+		formatString: 0
+		lineageTag: 3ce1f63b-9679-42de-8096-b53e80e80729
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Week]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Day
+		formatString: 0
+		lineageTag: b6b9b0c8-63d4-44e7-a20d-8ee346c1dff2
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Day]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Day Name'
+		lineageTag: 0c3e528e-9cb2-48d4-a0e7-7998222f5456
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Day Name]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Day Short'
+		lineageTag: 935ee9c6-f4f2-417a-9413-1a9bb4595e05
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Day Short]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Day Initial'
+		lineageTag: 87d007d3-4017-4edb-9169-9e2abab230c3
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Day Initial]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Day Number'
+		formatString: 0
+		lineageTag: a4e634a8-6717-48e5-bded-1143ab6c9421
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Day Number]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Quarter Number'
+		formatString: 0
+		lineageTag: 86361593-8d1d-49a6-b887-0de38066fde5
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Quarter Number]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Quarter
+		lineageTag: e5840901-e940-4395-a4c7-5b5ee5251cff
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Quarter]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Calculate Date Peepul' = calculated
+		mode: import
+		source = ```
+				
+				VAR MinDate = CALCULATE(MIN('Current Employee Data'[Date of joining]), ALL('Current Employee Data'))
+				VAR MaxDate = CALCULATE(MAX('Exit Employee Data'[Last working day]), ALL('Exit Employee Data'))
+				RETURN
+				ADDCOLUMNS (
+				    CALENDAR(MinDate, MaxDate),
+				    "Year", YEAR([Date]),
+				    "Quinquenio", FORMAT(FLOOR((YEAR([Date]) - 1) / 5, 1) * 5, "####") & "-" & FORMAT(FLOOR((YEAR([Date]) - 1) / 5, 1) * 5 + 4, "####"),
+				    "Year Ending", RIGHT(YEAR([Date]), 1),
+				    "Month", MONTH([Date]),
+				    "Month Name", FORMAT([Date], "MMMM"),
+				    "Month Short", FORMAT([Date], "MMM"),
+				    "Month Initial", LEFT(FORMAT([Date], "MMM"), 1),
+				    "Week", WEEKNUM([Date]),
+				    "Day", DAY([Date]),
+				    "Day Name", FORMAT([Date], "DDDD"),
+				    "Day Short", FORMAT([Date], "DDD"),
+				    "Day Initial", LEFT(FORMAT([Date], "DDD"), 1),
+				    "Day Number", WEEKDAY([Date]),
+				    "Quarter Number",QUARTER([Date]),
+				    "Quarter","Q-" & QUARTER([Date])
+				
+				)
+				
+				```
+
+	annotation PBI_Id = d79da16de52349269b85caa3a4a92da0
+

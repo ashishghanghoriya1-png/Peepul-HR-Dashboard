@@ -1,0 +1,180 @@
+table 'Exit Employee Data'
+	lineageTag: 41ff3236-447e-42ee-b8a0-3401fdb9715b
+
+	column 'Sr no '
+		dataType: int64
+		formatString: 0
+		lineageTag: 52a796b9-c1ec-4ba1-a3bd-46f14ea83a30
+		summarizeBy: sum
+		sourceColumn: "Sr no "
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Employee ID'
+		dataType: string
+		lineageTag: da9022de-8280-426e-a605-0963a02984b2
+		summarizeBy: none
+		sourceColumn: Employee ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'First Name*'
+		dataType: string
+		lineageTag: bcbf1123-a693-419e-b94c-4d9053c61cb6
+		summarizeBy: none
+		sourceColumn: First Name*
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Last Name*'
+		dataType: string
+		lineageTag: 89a523c9-c0f1-4b86-9505-92c0f0a666b8
+		summarizeBy: none
+		sourceColumn: Last Name*
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Full Name'
+		dataType: string
+		lineageTag: b749cabd-50a9-465a-811a-7064d402c117
+		summarizeBy: none
+		sourceColumn: Full Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Email ID*'
+		dataType: string
+		lineageTag: fad58e47-f359-41f5-93ce-9642d74fd859
+		summarizeBy: none
+		sourceColumn: Email ID*
+
+		annotation SummarizationSetBy = Automatic
+
+	column Department
+		dataType: string
+		lineageTag: 0758be8d-bae2-4d60-b224-4b33c8fc2ea2
+		summarizeBy: none
+		sourceColumn: Department
+
+		annotation SummarizationSetBy = Automatic
+
+	column Designation
+		dataType: string
+		lineageTag: 18d7b004-f421-43e4-aae4-6d8aaf06a681
+		summarizeBy: none
+		sourceColumn: Designation
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Role Level '
+		dataType: string
+		lineageTag: e4ecdb66-0725-4069-a4c9-af582bf8ced4
+		summarizeBy: none
+		sourceColumn: "Role Level "
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'For Comms '
+		dataType: string
+		lineageTag: 8f464e08-5d48-43b9-8149-2aec461aac9e
+		summarizeBy: none
+		sourceColumn: "For Comms "
+
+		annotation SummarizationSetBy = Automatic
+
+	column Team
+		dataType: string
+		lineageTag: 51e40fad-4660-4443-ba64-eb721139c8ce
+		summarizeBy: none
+		sourceColumn: Team
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Reporting To (Manager Name)'
+		dataType: string
+		lineageTag: 28feac9f-0f06-4cfc-ad30-0ff9327b1ffe
+		summarizeBy: none
+		sourceColumn: Reporting To (Manager Name)
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Date of joining'
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: d2f696d2-a9c5-44e4-ad1e-0b0f8ea3937a
+		summarizeBy: none
+		sourceColumn: Date of joining
+
+		variation Variation
+			isDefault
+			relationship: c10fbe40-5968-4754-8bca-5c5e952981ae
+			defaultHierarchy: LocalDateTable_5c7c3952-4e71-4453-bfde-312b40245d75.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Employment type'
+		dataType: string
+		lineageTag: 099ceecd-88b2-4731-8f38-27843e3f5fb5
+		summarizeBy: none
+		sourceColumn: Employment type
+
+		annotation SummarizationSetBy = Automatic
+
+	column Tenure
+		dataType: string
+		lineageTag: 90cbfe79-a1d1-4607-bce0-41dec98af444
+		summarizeBy: none
+		sourceColumn: Tenure
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Location '
+		dataType: string
+		lineageTag: bb7a8549-f3a7-4f9d-8d2e-b3c0436a05ea
+		summarizeBy: none
+		sourceColumn: "Location "
+
+		annotation SummarizationSetBy = Automatic
+
+	column Gender
+		dataType: string
+		lineageTag: 5ad10bab-0ca9-4d03-8302-43164dfc153f
+		summarizeBy: none
+		sourceColumn: Gender
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Reason for Leaving'
+		dataType: string
+		lineageTag: a3fafea9-c3bb-432f-baaa-d04fbaae8261
+		summarizeBy: none
+		sourceColumn: Reason for Leaving
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Last working day'
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 2015b4b7-9e72-41e5-bba6-e64044824174
+		summarizeBy: none
+		sourceColumn: Last working day
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	partition 'Exit Employee Data' = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("C:\Users\Peepul\OneDrive - Absolute Return For Kids\HR Dashboard Files\HR Data.xlsx"), null, true),
+				    #"Exit Employee Data_Sheet" = Source{[Item="Exit Employee Data",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(#"Exit Employee Data_Sheet", [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Sr no ", Int64.Type}, {"Employee ID", type text}, {"First Name*", type text}, {"Last Name*", type text}, {"Full Name", type text}, {"Email ID*", type text}, {"Department", type text}, {"Designation", type text}, {"Role Level ", type text}, {"For Comms ", type text}, {"Team", type text}, {"Reporting To (Manager Name)", type text}, {"Date of joining", type date}, {"Employment type", type text}, {"Tenure", type text}, {"Location ", type text}, {"Gender", type text}, {"Reason for Leaving", type text}, {"Last working day", type date}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+
