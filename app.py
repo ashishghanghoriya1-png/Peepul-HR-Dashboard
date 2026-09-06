@@ -1057,18 +1057,19 @@ with tab2:
     calc_c1, calc_c2 = st.columns([1, 2])
     with calc_c1:
         shift_roles = st.slider("Number of Roles to Re-allocate:", min_value=1, max_value=20, value=5, step=1)
+        agency_cost_per_hire = st.number_input("Agency / Placement Fee per Role (₹):", min_value=5000, max_value=1000000, value=75000, step=5000, help="Enter the average placement agency or job portal fee per hired candidate.")
         slow_tat_val = st.number_input("Current Slow Channel TAT (Days):", min_value=30, max_value=200, value=120, step=5)
         target_tat_val = st.number_input("Target Fast Channel TAT (Days):", min_value=10, max_value=60, value=45, step=5)
 
     with calc_c2:
         days_saved_total = shift_roles * (slow_tat_val - target_tat_val)
-        cost_saved_agency = shift_roles * 75000  # Est Rs.75,000 agency fee saved per role
+        cost_saved_agency = shift_roles * agency_cost_per_hire
         
         rc1, rc2, rc3 = st.columns(3)
         with rc1:
             st.markdown(f'<div class="metric-card"><div class="metric-title">Days Saved in Hiring</div><div class="metric-value">{days_saved_total} Days</div><div class="metric-subtitle">Cumulative Days Saved</div></div>', unsafe_allow_html=True)
         with rc2:
-            st.markdown(f'<div class="metric-card"><div class="metric-title">Agency Fees Saved</div><div class="metric-value">₹{cost_saved_agency:,}</div><div class="metric-subtitle">Direct Cost Reduction</div></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="metric-card"><div class="metric-title">Placement Fees Saved</div><div class="metric-value">₹{cost_saved_agency:,}</div><div class="metric-subtitle">Direct Cost Reduction</div></div>', unsafe_allow_html=True)
         with rc3:
             st.markdown(f'<div class="metric-card"><div class="metric-title">Faster Onboarding</div><div class="metric-value">+{target_tat_val} Days</div><div class="metric-subtitle">Target Fill Speed</div></div>', unsafe_allow_html=True)
 
