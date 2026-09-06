@@ -926,6 +926,43 @@ with tab1:
         with sc3:
             st.markdown(f'<div class="metric-card"><div class="metric-title">New Turnover Rate</div><div class="metric-value">{new_attrition:.1f}%</div><div class="metric-subtitle">Reduced from {attrition_rate:.1f}%</div></div>', unsafe_allow_html=True)
 
+    # --------------------------------------------------------------------------
+    # ONBOARDING MILESTONE RISK TRACKER (30, 60, 90-DAY CHECKPOINTS)
+    # --------------------------------------------------------------------------
+    st.markdown("---")
+    st.subheader("🏁 Onboarding Milestone Risk Tracker (30, 60 & 90-Day Checkpoints)")
+    st.markdown("Identifies active new hires in their critical first 90 days of employment to schedule manager retention check-ins.")
+
+    emp_onb = filtered_emp.copy()
+    emp_onb['Tenure_Days'] = (pd.Timestamp.now() - emp_onb['Date of joining']).dt.days
+    
+    onb_active = emp_onb[emp_onb['Tenure_Days'] <= 180].copy()
+    
+    def tag_onboarding_stage(days):
+        if days <= 30:
+            return '🟢 30-Day Checkpoint (0-30d)'
+        elif days <= 60:
+            return '🟡 60-Day Checkpoint (31-60d)'
+        elif days <= 90:
+            return '🟠 90-Day Checkpoint (61-90d)'
+        return '🔵 Mid-Onboarding (91-180d)'
+
+    onb_active['Onboarding Milestone'] = onb_active['Tenure_Days'].apply(tag_onboarding_stage)
+    
+    c30 = len(onb_active[onb_active['Tenure_Days'] <= 30])
+    c60 = len(onb_active[(onb_active['Tenure_Days'] > 30) & (onb_active['Tenure_Days'] <= 60)])
+    c90 = len(onb_active[(onb_active['Tenure_Days'] > 60) & (onb_active['Tenure_Days'] <= 90)])
+
+    ob1, ob2, ob3 = st.columns(3)
+    with ob1:
+        st.markdown(f'<div class="metric-card"><div class="metric-title">🟢 30-Day Checkpoints</div><div class="metric-value">{c30} Staff</div><div class="metric-subtitle">1st Month Check-in</div></div>', unsafe_allow_html=True)
+    with ob2:
+        st.markdown(f'<div class="metric-card"><div class="metric-title">🟡 60-Day Checkpoints</div><div class="metric-value">{c60} Staff</div><div class="metric-subtitle">2nd Month Check-in</div></div>', unsafe_allow_html=True)
+    with ob3:
+        st.markdown(f'<div class="metric-card"><div class="metric-title">🟠 90-Day Checkpoints</div><div class="metric-value">{c90} Staff</div><div class="metric-subtitle">Probation Review</div></div>', unsafe_allow_html=True)
+
+    st.dataframe(onb_active[['Full Name', 'Department', 'Team', 'Designation', 'Reporting To (Manager Name)', 'Date of joining', 'Tenure_Days', 'Onboarding Milestone']].rename(columns={'Tenure_Days': 'Days in Org', 'Reporting To (Manager Name)': 'Manager'}), use_container_width=True)
+
 # ------------------------------------------------------------------------------
 # TAB 2: RECRUITMENT SPEED & HIRING SOURCE ROI
 # ------------------------------------------------------------------------------
@@ -1188,6 +1225,35 @@ with tab3:
     mgr_sc = mgr_sc.sort_values(by=['Staff Exits', 'Direct Reports (Span)'], ascending=[False, False])
 
     st.dataframe(mgr_sc.rename(columns={'Reporting To (Manager Name)': 'Manager Name'}), use_container_width=True)
+
+    # --------------------------------------------------------------------------
+    # DIVERSITY & LEADERSHIP LEVEL REPRESENTATION MATRIX
+    # --------------------------------------------------------------------------
+    st.markdown("---")
+    st.subheader("👩‍💼 Diversity & Seniority Level Representation Matrix")
+    st.markdown("Analyzes female and male staff distribution across organizational seniority tiers per department.")
+
+    div_matrix = filtered_emp.groupby(['Department', 'Role Level', 'Gender']).size().unstack(fill_value=0).reset_index()
+    if 'Female' not in div_matrix.columns:
+        div_matrix['Female'] = 0
+    if 'Male' not in div_matrix.columns:
+        div_matrix['Male'] = 0
+    div_matrix['Total'] = div_matrix['Female'] + div_matrix['Male']
+    div_matrix['Female %'] = (div_matrix['Female'] / div_matrix['Total'] * 100).fillna(0).round(1)
+
+    fig_div_level = px.bar(
+        div_matrix,
+        x='Department',
+        y=['Female', 'Male'],
+        color_discrete_sequence=['#FF007F', '#00F2FE'],
+        barmode='stack',
+        facet_col='Role Level',
+        text_auto=True
+    )
+    fig_div_level = apply_plotly_theme(fig_div_level, "Gender Balance by Department & Role Seniority Tier")
+    st.plotly_chart(fig_div_level, use_container_width=True)
+
+    st.dataframe(div_matrix, use_container_width=True)
 
 # ------------------------------------------------------------------------------
 # TAB 4: EXIT & ATTRITION DEEP-DIVE
@@ -1551,6 +1617,43 @@ with tab5:
     csv_reg = filt_hir_pred.to_csv(index=False).encode('utf-8')
     st.download_button("📥 Download TabFM Hiring Speed Regressor CSV", csv_reg, "TabFM_Predicted_Hiring_TAT.csv", "text/csv")
 
+    # --------------------------------------------------------------------------
+    # RETENTION INTERVENTION ROI CALCULATOR
+    # --------------------------------------------------------------------------
+    st.markdown("---")
+    st.subheader("💡 Retention Intervention ROI & Budget Calculator")
+    st.markdown("Calculate projected financial savings and ROI by deploying retention bonuses, salary adjustments, or stay-incentives to top high-risk staff.")
+
+    col_roi1, col_roi2 = st.columns(2)
+    with col_roi1:
+        avg_emp_salary = st.number_input("Average Annual Salary per High-Risk Staff (₹)", min_value=100000, value=800000, step=50000)
+        replacement_cost_multiplier = st.slider("Cost of Replacement (% of Annual Salary)", min_value=20, max_value=150, value=50, step=5, help="Standard industry replacement cost is 30% - 75% including recruitment, onboarding & lost productivity")
+        intervention_cost_per_emp = st.number_input("Proposed Retention Budget / Bonus per Employee (₹)", min_value=10000, value=100000, step=10000)
+    with col_roi2:
+        high_risk_target_cnt = len(filt_res_clf[filt_res_clf['Risk Category'] == '🔴 High Risk'])
+        max_retain_val = max(2, high_risk_target_cnt)
+        selected_retain_cnt = st.slider("Target Employees to Retain", min_value=1, max_value=max_retain_val, value=min(5, max(1, high_risk_target_cnt)))
+        estimated_success_rate = st.slider("Estimated Intervention Success Rate (%)", min_value=10, max_value=100, value=70, step=5)
+
+    # Calculations
+    cost_per_turnover = avg_emp_salary * (replacement_cost_multiplier / 100.0)
+    total_potential_turnover_loss = cost_per_turnover * selected_retain_cnt
+    total_intervention_investment = intervention_cost_per_emp * selected_retain_cnt
+    successfully_retained_cnt = round(selected_retain_cnt * (estimated_success_rate / 100.0), 1)
+    gross_savings = cost_per_turnover * successfully_retained_cnt
+    net_savings = gross_savings - total_intervention_investment
+    roi_pct = (net_savings / total_intervention_investment * 100) if total_intervention_investment > 0 else 0.0
+
+    r_col1, r_col2, r_col3, r_col4 = st.columns(4)
+    with r_col1:
+        st.markdown(f'<div class="metric-card"><div class="metric-title">Replacement Cost / Exit</div><div class="metric-value">₹{cost_per_turnover:,.0f}</div><div class="metric-subtitle">Recruitment & Hiring Cost</div></div>', unsafe_allow_html=True)
+    with r_col2:
+        st.markdown(f'<div class="metric-card-alert"><div class="metric-title">Retention Budget Needed</div><div class="metric-value">₹{total_intervention_investment:,.0f}</div><div class="metric-subtitle">For {selected_retain_cnt} Key Staff</div></div>', unsafe_allow_html=True)
+    with r_col3:
+        st.markdown(f'<div class="metric-card"><div class="metric-title">Gross Turnover Cost Saved</div><div class="metric-value">₹{gross_savings:,.0f}</div><div class="metric-subtitle">({successfully_retained_cnt} Staff Retained)</div></div>', unsafe_allow_html=True)
+    with r_col4:
+        st.markdown(f'<div class="metric-card"><div class="metric-title">Net Financial ROI</div><div class="metric-value">₹{net_savings:,.0f}</div><div class="metric-subtitle">ROI: {roi_pct:.1f}%</div></div>', unsafe_allow_html=True)
+
 # ------------------------------------------------------------------------------
 # TAB 6: RAW DATA & CSV EXPORT
 # ------------------------------------------------------------------------------
@@ -1628,6 +1731,58 @@ Generated: {datetime.now().strftime('%d %B %Y')}
         data=exec_brief_text.encode('utf-8'),
         file_name="Peepul_Executive_HR_Brief.txt",
         mime="text/plain"
+    )
+
+    st.markdown("---")
+    st.subheader("📽️ Automated 5-Slide C-Suite Presentation Deck Generator")
+    st.markdown("Generate a fully structured 5-slide C-suite executive briefing deck (.md) optimized for Marp, Slides, or Markdown viewers.")
+
+    slide_deck_content = f"""# Slide 1: Executive Workforce Summary
+## Peepul HR Intelligence Briefing — {datetime.now().strftime('%B %Y')}
+- **Active Employee Headcount**: {active_hc:,} across {len(selected_depts)} departments
+- **Total Departures**: {exits_cnt:,} employees (Voluntary Turnover: {vol_exits_cnt:,})
+- **Turnover Rate**: {attrition_rate:.1f}% | **Workforce Retention Rate**: {retention_rate:.1f}%
+- **Organizational Net Growth**: +{net_growth:,} positions
+
+---
+
+# Slide 2: Recruitment SLA & Speed Optimization Bottlenecks
+- **Average Hiring Turnaround Time (TAT)**: {avg_tat:.1f} Days
+- **Active Open Positions**: {open_positions} roles across organizational functions
+- **Overall Vacancy Rate**: {vacancy_rate:.1f}%
+- **Key Bottleneck Area**: Senior management & technical roles require SLA optimization to reduce time-to-fill below 45 days.
+
+---
+
+# Slide 3: Flight Risk & AI Predictive Exit Analysis
+- **High Exit Risk Staff Flagged**: {high_risk_cnt} active employees (>60% risk score)
+- **Workforce Average Exit Probability**: {avg_risk_score:.1f}%
+- **Primary Risk Drivers**: Mid-level staff tenure (1-2 years) & department manager report ratios.
+- **Stay-Interview Intervention Target**: Deploy targeted retention packages to top 10 flagged high-value staff.
+
+---
+
+# Slide 4: Strategic Departmental Benchmarking
+- **Largest Department**: Programme Dept ({fm_df['Active Headcount'].max()} active staff)
+- **Voluntary Resignation Concentration**: Programme & Strategic Operations departments require manager engagement reviews.
+- **Gender Diversity Scorecard**: Overall Female representation maintained across organizational tiers.
+
+---
+
+# Slide 5: Strategic HR Roadmap & Executive Action Plan
+1. **Targeted Stay Interviews**: Immediate manager check-ins for the top 10 AI-flagged high-risk personnel.
+2. **Recruitment Channel Re-allocation**: Shift budget toward internal referrals and direct sourcing to save external agency fees.
+3. **Managerial Span Optimization**: Provide team leadership coaching for managers with over 8 direct report lines.
+
+---
+*Prepared by Ashish | Peepul HR Analytics Dashboard*
+"""
+
+    st.download_button(
+        label="📥 Download 5-Slide C-Suite Deck (.md)",
+        data=slide_deck_content.encode('utf-8'),
+        file_name="Peepul_CSuite_Presentation_Deck.md",
+        mime="text/markdown"
     )
 
 st.markdown("---")
