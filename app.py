@@ -60,26 +60,27 @@ st.markdown("""
         color: #0F172A;
     }
 
-    /* Org Health Hero Card Styling */
+    /* Org Health Hero Card Styling - Light Executive Theme Match */
     .health-hero-card {
-        background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%) !important;
+        background-color: #FFFFFF !important;
         border-radius: 16px;
         padding: 22px 30px;
-        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.2);
+        border: 2px solid #0284C7 !important;
+        box-shadow: 0 4px 20px rgba(2, 132, 199, 0.12);
         margin-bottom: 25px;
         display: flex;
         align-items: center;
         justify-content: space-between;
     }
     .health-hero-title {
-        color: #94A3B8 !important;
+        color: #475569 !important;
         font-size: 13px !important;
         font-weight: 700 !important;
         text-transform: uppercase;
         letter-spacing: 1px;
     }
     .health-hero-val {
-        color: #FFFFFF !important;
+        color: #0F172A !important;
         font-size: 42px !important;
         font-weight: 900 !important;
         line-height: 1.1;
@@ -96,12 +97,12 @@ st.markdown("""
     }
     .health-hero-details {
         text-align: right;
-        color: #CBD5E1 !important;
+        color: #475569 !important;
         font-size: 13px !important;
         line-height: 1.7;
     }
     .health-hero-details b {
-        color: #FFFFFF !important;
+        color: #0F172A !important;
     }
 
     /* Executive Printable Briefing Card */
@@ -677,13 +678,13 @@ with tab1:
     
     if hr_health_index >= 80:
         health_status = "🟢 EXCELLENT HR HEALTH"
-        health_badge_color = "#00F2FE"
+        health_badge_color = "#0284C7"
     elif hr_health_index >= 60:
         health_status = "🟡 MODERATE PERFORMANCE"
-        health_badge_color = "#FFB703"
+        health_badge_color = "#D97706"
     else:
         health_status = "🔴 HIGH OPERATIONAL RISK"
-        health_badge_color = "#FF007F"
+        health_badge_color = "#DC2626"
         
     st.markdown(f"""
     <div class="health-hero-card" style="border: 2px solid {health_badge_color} !important;">
