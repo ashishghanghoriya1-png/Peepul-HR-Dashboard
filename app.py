@@ -39,7 +39,7 @@ st.markdown("""
     /* Global Container Force Light Mode */
     html, body, [data-testid="stAppViewContainer"], .stApp {
         background-color: #F8FAFC !important;
-        color: #0F172A !important;
+        color: #0F172A;
         font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
     }
     
@@ -52,8 +52,64 @@ st.markdown("""
         border-right: 1px solid #E2E8F0 !important;
     }
     
-    /* Universal Headings & Text High Contrast Override */
-    h1, h2, h3, h4, h5, h6, p, span, label, div, [data-testid="stMarkdownContainer"] p, [data-testid="stMarkdownContainer"] h1, [data-testid="stMarkdownContainer"] h2, [data-testid="stMarkdownContainer"] h3 {
+    /* Universal Headings & General Text */
+    h1, h2, h3, h4, h5, h6 {
+        color: #0F172A !important;
+    }
+    p, label {
+        color: #0F172A;
+    }
+
+    /* Org Health Hero Card Styling */
+    .health-hero-card {
+        background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%) !important;
+        border-radius: 16px;
+        padding: 22px 30px;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.2);
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .health-hero-title {
+        color: #94A3B8 !important;
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .health-hero-val {
+        color: #FFFFFF !important;
+        font-size: 42px !important;
+        font-weight: 900 !important;
+        line-height: 1.1;
+        margin-top: 4px;
+    }
+    .health-hero-val-sub {
+        font-size: 20px !important;
+        color: #64748B !important;
+    }
+    .health-hero-status {
+        font-size: 14px !important;
+        font-weight: 800 !important;
+        margin-top: 6px;
+    }
+    .health-hero-details {
+        text-align: right;
+        color: #CBD5E1 !important;
+        font-size: 13px !important;
+        line-height: 1.7;
+    }
+    .health-hero-details b {
+        color: #FFFFFF !important;
+    }
+
+    /* Executive Printable Briefing Card */
+    .briefing-card {
+        background-color: #FFFFFF !important;
+        padding: 25px;
+        border-radius: 12px;
+        border: 2px solid #0F172A !important;
         color: #0F172A !important;
     }
 
@@ -120,6 +176,17 @@ st.markdown("""
         color: #00F2FE !important;
         font-weight: 800 !important;
         font-size: 15px !important;
+    }
+    
+    /* Streamlit Expander High Contrast */
+    [data-testid="stExpander"] {
+        background-color: #FFFFFF !important;
+        border: 1px solid #CBD5E1 !important;
+        border-radius: 12px !important;
+    }
+    [data-testid="stExpander"] summary * {
+        color: #0F172A !important;
+        font-weight: 700 !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -619,13 +686,13 @@ with tab1:
         health_badge_color = "#FF007F"
         
     st.markdown(f"""
-    <div style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); border-radius: 16px; padding: 20px 30px; border: 2px solid {health_badge_color}; margin-bottom: 25px; box-shadow: 0 10px 30px rgba(0, 242, 254, 0.15); display: flex; align-items: center; justify-content: space-between;">
+    <div class="health-hero-card" style="border: 2px solid {health_badge_color} !important;">
         <div>
-            <div style="color: #94A3B8; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">PEEPUL ORG HR HEALTH INDEX SCORE</div>
-            <div style="color: #FFFFFF; font-size: 42px; font-weight: 900; line-height: 1.1; margin-top: 4px;">{hr_health_index:.1f} <span style="font-size: 20px; color: #64748B;">/ 100</span></div>
-            <div style="color: {health_badge_color}; font-size: 14px; font-weight: 800; margin-top: 6px;">{health_status}</div>
+            <div class="health-hero-title">PEEPUL ORG HR HEALTH INDEX SCORE</div>
+            <div class="health-hero-val">{hr_health_index:.1f} <span class="health-hero-val-sub">/ 100</span></div>
+            <div class="health-hero-status" style="color: {health_badge_color} !important;">{health_status}</div>
         </div>
-        <div style="text-align: right; color: #CBD5E1; font-size: 12px; line-height: 1.6;">
+        <div class="health-hero-details">
             <b>Retention Score:</b> {retention_score:.1f}/100 &nbsp;|&nbsp; <b>Recruitment Speed:</b> {speed_score:.1f}/100<br>
             <b>Manager Span Balance:</b> {span_score:.1f}/100 &nbsp;|&nbsp; <b>Gender Diversity:</b> {diversity_score:.1f}/100
         </div>
@@ -649,41 +716,41 @@ with tab1:
     # --------------------------------------------------------------------------
     with st.expander("🖨️ View Executive Board 1-Page Summary (Print / Board Presentation Ready)", expanded=False):
         st.markdown(f"""
-        <div style="background-color: #FFFFFF; padding: 25px; border-radius: 12px; border: 2px solid #0F172A; color: #0F172A; font-family: Segoe UI, sans-serif;">
+        <div class="briefing-card">
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0F172A; padding-bottom: 10px; margin-bottom: 15px;">
-                <h2 style="margin:0; font-size: 22px; color: #0F172A;">PEEPUL HR BOARD EXECUTIVE BRIEFING</h2>
-                <div style="font-size: 12px; font-weight: 700; color: #475569;">Date: {datetime.now().strftime('%d %B %Y')}</div>
+                <h2 style="margin:0; font-size: 22px; color: #0F172A !important;">PEEPUL HR BOARD EXECUTIVE BRIEFING</h2>
+                <div style="font-size: 12px; font-weight: 700; color: #475569 !important;">Date: {datetime.now().strftime('%d %B %Y')}</div>
             </div>
             
             <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px;">
                 <div style="background:#F8FAFC; padding: 12px; border-radius: 8px; text-align: center; border: 1px solid #CBD5E1;">
-                    <div style="font-size: 11px; font-weight: 700; color: #475569;">ACTIVE STAFF</div>
-                    <div style="font-size: 24px; font-weight: 800; color: #0F172A;">{active_hc}</div>
+                    <div style="font-size: 11px; font-weight: 700; color: #475569 !important;">ACTIVE STAFF</div>
+                    <div style="font-size: 24px; font-weight: 800; color: #0F172A !important;">{active_hc}</div>
                 </div>
                 <div style="background:#F8FAFC; padding: 12px; border-radius: 8px; text-align: center; border: 1px solid #CBD5E1;">
-                    <div style="font-size: 11px; font-weight: 700; color: #475569;">TURNOVER RATE</div>
-                    <div style="font-size: 24px; font-weight: 800; color: #FF007F;">{attrition_rate:.1f}%</div>
+                    <div style="font-size: 11px; font-weight: 700; color: #475569 !important;">TURNOVER RATE</div>
+                    <div style="font-size: 24px; font-weight: 800; color: #FF007F !important;">{attrition_rate:.1f}%</div>
                 </div>
                 <div style="background:#F8FAFC; padding: 12px; border-radius: 8px; text-align: center; border: 1px solid #CBD5E1;">
-                    <div style="font-size: 11px; font-weight: 700; color: #475569;">AVG HIRING SPEED</div>
-                    <div style="font-size: 24px; font-weight: 800; color: #0F172A;">{avg_tat:.1f} Days</div>
+                    <div style="font-size: 11px; font-weight: 700; color: #475569 !important;">AVG HIRING SPEED</div>
+                    <div style="font-size: 24px; font-weight: 800; color: #0F172A !important;">{avg_tat:.1f} Days</div>
                 </div>
                 <div style="background:#F8FAFC; padding: 12px; border-radius: 8px; text-align: center; border: 1px solid #CBD5E1;">
-                    <div style="font-size: 11px; font-weight: 700; color: #475569;">HR HEALTH INDEX</div>
-                    <div style="font-size: 24px; font-weight: 800; color: #0284C7;">{hr_health_index:.1f}/100</div>
+                    <div style="font-size: 11px; font-weight: 700; color: #475569 !important;">HR HEALTH INDEX</div>
+                    <div style="font-size: 24px; font-weight: 800; color: #0284C7 !important;">{hr_health_index:.1f}/100</div>
                 </div>
             </div>
 
-            <div style="font-size: 13px; line-height: 1.6; color: #1E293B;">
-                <b>Key Executive Takeaways:</b>
-                <ul>
-                    <li>Active workforce is <b>{active_hc} employees</b> with <b>{exits_cnt} total departures</b> (Retention: {retention_rate:.1f}%).</li>
-                    <li>Voluntary resignations comprise <b>{len(filtered_exit[filtered_exit['Exit Category']=='Regretted Exit'])} exits (71.7%)</b>, heavily concentrated in the 1–2 year tenure band.</li>
-                    <li>Fastest sourcing channels: Alumni (15d) & Employee Referrals (48d). Slower channels: LinkedIn (106d) & Agencies (176d).</li>
-                    <li><b>Strategic Action:</b> Deploy 12-month stay-interviews and reallocate recruitment budget to direct sourcing.</li>
+            <div style="font-size: 13px; line-height: 1.6; color: #1E293B !important;">
+                <b style="color: #0F172A !important;">Key Executive Takeaways:</b>
+                <ul style="color: #1E293B !important;">
+                    <li style="color: #1E293B !important;"><span style="color: #1E293B !important;">Active workforce is <b>{active_hc} employees</b> with <b>{exits_cnt} total departures</b> (Retention: {retention_rate:.1f}%).</span></li>
+                    <li style="color: #1E293B !important;"><span style="color: #1E293B !important;">Voluntary resignations comprise <b>{len(filtered_exit[filtered_exit['Exit Category']=='Regretted Exit'])} exits (71.7%)</b>, heavily concentrated in the 1–2 year tenure band.</span></li>
+                    <li style="color: #1E293B !important;"><span style="color: #1E293B !important;">Fastest sourcing channels: Alumni (15d) & Employee Referrals (48d). Slower channels: LinkedIn (106d) & Agencies (176d).</span></li>
+                    <li style="color: #1E293B !important;"><span style="color: #1E293B !important;"><b>Strategic Action:</b> Deploy 12-month stay-interviews and reallocate recruitment budget to direct sourcing.</span></li>
                 </ul>
             </div>
-            <div style="text-align: right; font-size: 11px; font-weight: 700; color: #64748B; margin-top: 15px;">
+            <div style="text-align: right; font-size: 11px; font-weight: 700; color: #64748B !important; margin-top: 15px;">
                 Prepared by Ashish | Peepul HR Analytics Platform
             </div>
         </div>
