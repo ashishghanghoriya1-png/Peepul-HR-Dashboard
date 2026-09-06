@@ -1037,6 +1037,31 @@ with tab2:
 
     st.dataframe(hiring_df_sla[['Open Role', 'Team', 'Role Level', 'No of positions', 'Back Fills', 'New Hires', 'SLA Urgency']], use_container_width=True)
 
+    # --------------------------------------------------------------------------
+    # SOURCING BUDGET RE-ALLOCATION & SPEED OPTIMIZATION CALCULATOR
+    # --------------------------------------------------------------------------
+    st.markdown("---")
+    st.subheader("💰 Sourcing Budget Re-allocation & Speed Optimization Calculator")
+    st.markdown("Model turnaround time and cost savings achieved by shifting recruitment volume from slow channels (e.g. Placement Agencies) to fast channels (e.g. Referrals / Direct Sourcing).")
+
+    calc_c1, calc_c2 = st.columns([1, 2])
+    with calc_c1:
+        shift_roles = st.slider("Number of Roles to Re-allocate:", min_value=1, max_value=20, value=5, step=1)
+        slow_tat_val = st.number_input("Current Slow Channel TAT (Days):", min_value=30, max_value=200, value=120, step=5)
+        target_tat_val = st.number_input("Target Fast Channel TAT (Days):", min_value=10, max_value=60, value=45, step=5)
+
+    with calc_c2:
+        days_saved_total = shift_roles * (slow_tat_val - target_tat_val)
+        cost_saved_agency = shift_roles * 75000  # Est Rs.75,000 agency fee saved per role
+        
+        rc1, rc2, rc3 = st.columns(3)
+        with rc1:
+            st.markdown(f'<div class="metric-card"><div class="metric-title">Days Saved in Hiring</div><div class="metric-value">{days_saved_total} Days</div><div class="metric-subtitle">Cumulative Days Saved</div></div>', unsafe_allow_html=True)
+        with rc2:
+            st.markdown(f'<div class="metric-card"><div class="metric-title">Agency Fees Saved</div><div class="metric-value">₹{cost_saved_agency:,}</div><div class="metric-subtitle">Direct Cost Reduction</div></div>', unsafe_allow_html=True)
+        with rc3:
+            st.markdown(f'<div class="metric-card"><div class="metric-title">Faster Onboarding</div><div class="metric-value">+{target_tat_val} Days</div><div class="metric-subtitle">Target Fill Speed</div></div>', unsafe_allow_html=True)
+
 # ------------------------------------------------------------------------------
 # TAB 3: DEMOGRAPHICS & MANAGER SPAN OF CONTROL
 # ------------------------------------------------------------------------------
@@ -1219,6 +1244,43 @@ with tab4:
     st.subheader("📊 Role Level Turnover Breakdown Table")
     st.dataframe(role_att.rename(columns={'Departures Count': 'Departures Count', 'Active Count': 'Active Staff'}), use_container_width=True)
 
+    # --------------------------------------------------------------------------
+    # YEARLY JOINING COHORT RETENTION ANALYSIS
+    # --------------------------------------------------------------------------
+    st.markdown("---")
+    st.subheader("📅 Joining Cohort Retention Analysis (2020 - 2026)")
+    st.markdown("Tracks retention rates across employee joining cohorts over time to evaluate onboarding retention effectiveness.")
+
+    emp_cohort = filtered_emp.copy()
+    emp_cohort['Join Year'] = emp_cohort['Date of joining'].dt.year
+    
+    exit_cohort = filtered_exit.copy()
+    exit_cohort['Join Year'] = exit_cohort['Date of joining'].dt.year
+
+    c_active = emp_cohort.groupby('Join Year').size().reset_index(name='Active Retained')
+    c_exits = exit_cohort.groupby('Join Year').size().reset_index(name='Departed Staff')
+    
+    cohort_df = pd.merge(c_active, c_exits, on='Join Year', how='outer').fillna(0)
+    cohort_df = cohort_df[(cohort_df['Join Year'] >= 2020) & (cohort_df['Join Year'] <= 2026)].sort_values(by='Join Year')
+    cohort_df['Join Year'] = cohort_df['Join Year'].astype(int).astype(str)
+    cohort_df['Active Retained'] = cohort_df['Active Retained'].astype(int)
+    cohort_df['Departed Staff'] = cohort_df['Departed Staff'].astype(int)
+    cohort_df['Total Hired'] = cohort_df['Active Retained'] + cohort_df['Departed Staff']
+    cohort_df['Cohort Retention %'] = (cohort_df['Active Retained'] / cohort_df['Total Hired'] * 100).fillna(0).round(1)
+
+    fig_cohort = px.bar(
+        cohort_df,
+        x='Join Year',
+        y=['Active Retained', 'Departed Staff'],
+        barmode='stack',
+        text_auto=True,
+        color_discrete_sequence=['#00F2FE', '#FF007F']
+    )
+    fig_cohort = apply_plotly_theme(fig_cohort, "Cohort Retention Breakdown by Joining Year")
+    st.plotly_chart(fig_cohort, use_container_width=True)
+
+    st.dataframe(cohort_df, use_container_width=True)
+
 # ------------------------------------------------------------------------------
 # TAB 5: FUNCTIONAL & MANAGERIAL (TAB FM)
 # ------------------------------------------------------------------------------
@@ -1274,9 +1336,55 @@ with tab5:
         'Active Headcount': 'Active Staff',
         'Total Exits': 'Total Departures',
         'Regretted Exits': 'Voluntary Exits (Resigned)',
-        'Non-Regretted Exits': 'Involuntary Exits (Trial/Contract)',
+        'Non-Regretted Exits': 'Involuntary Exits (Contract/Trial)',
         'Attrition Rate %': 'Turnover Rate %'
     }), use_container_width=True)
+
+    # --------------------------------------------------------------------------
+    # DEPARTMENTAL HIGH-LEVEL BENCHMARKING MATRIX
+    # --------------------------------------------------------------------------
+    st.markdown("---")
+    st.subheader("🏛️ Departmental High-Level Benchmarking Matrix")
+    st.markdown("Side-by-side executive benchmarking of headcount, turnover rate, manager count, and gender balance across all departments.")
+
+    dept_bench_emp = filtered_emp.groupby('Department').agg(
+        Active_Staff=('Full Name', 'count'),
+        Avg_Tenure=('Tenure Years', 'mean'),
+        Manager_Count=('Reporting To (Manager Name)', 'nunique'),
+        Female_Count=('Gender', lambda g: (g == 'Female').sum())
+    ).reset_index()
+
+    dept_bench_exit = filtered_exit.groupby('Department').agg(
+        Total_Exits=('Full Name', 'count'),
+        Voluntary_Exits=('Exit Category', lambda c: (c == 'Regretted Exit').sum())
+    ).reset_index()
+
+    dept_bench = pd.merge(dept_bench_emp, dept_bench_exit, on='Department', how='outer').fillna(0)
+    dept_bench['Active_Staff'] = dept_bench['Active_Staff'].astype(int)
+    dept_bench['Total_Exits'] = dept_bench['Total_Exits'].astype(int)
+    dept_bench['Voluntary_Exits'] = dept_bench['Voluntary_Exits'].astype(int)
+    dept_bench['Avg_Tenure'] = dept_bench['Avg_Tenure'].round(1)
+    dept_bench['Female %'] = (dept_bench['Female_Count'] / dept_bench['Active_Staff'] * 100).fillna(0).round(1)
+    dept_bench['Turnover Rate %'] = (dept_bench['Total_Exits'] / (dept_bench['Active_Staff'] + dept_bench['Total_Exits']) * 100).fillna(0).round(1)
+
+    def tag_dept_health(row):
+        if row['Turnover Rate %'] >= 25.0:
+            return '🔴 High Turnover Attention Needed'
+        elif row['Turnover Rate %'] >= 15.0:
+            return '🟡 Moderate Watch'
+        return '🟢 Healthy Department'
+
+    dept_bench['Health Benchmark'] = dept_bench.apply(tag_dept_health, axis=1)
+    dept_bench = dept_bench.sort_values(by='Active_Staff', ascending=False)
+
+    st.dataframe(dept_bench.rename(columns={
+        'Active_Staff': 'Active Staff',
+        'Total_Exits': 'Total Departures',
+        'Voluntary_Exits': 'Voluntary Exits',
+        'Avg_Tenure': 'Avg Tenure (Yrs)',
+        'Manager_Count': 'Managers Count'
+    }), use_container_width=True)
+    
     csv_fm = fm_df.to_csv(index=False).encode('utf-8')
     st.download_button("📥 Download Departmental Matrix CSV", csv_fm, "Tab_FM_Functional_Matrix.csv", "text/csv")
     
