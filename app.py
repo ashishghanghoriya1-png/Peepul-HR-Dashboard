@@ -1583,29 +1583,57 @@ with tab3:
     # --------------------------------------------------------------------------
     st.markdown("---")
     st.subheader("👩‍💼 Diversity & Seniority Level Representation Matrix")
-    st.markdown("Analyzes female and male staff distribution across organizational seniority tiers per department.")
+    st.markdown("Clear executive breakdown of gender representation (Female vs. Male) across organizational seniority levels.")
 
-    div_matrix = filtered_emp.groupby(['Department', 'Role Level', 'Gender']).size().unstack(fill_value=0).reset_index()
-    if 'Female' not in div_matrix.columns:
-        div_matrix['Female'] = 0
-    if 'Male' not in div_matrix.columns:
-        div_matrix['Male'] = 0
-    div_matrix['Total'] = div_matrix['Female'] + div_matrix['Male']
-    div_matrix['Female %'] = (div_matrix['Female'] / div_matrix['Total'] * 100).fillna(0).round(1)
+    # 1. Seniority Level Aggregation
+    sen_matrix = filtered_emp.groupby(['Role Level', 'Gender']).size().unstack(fill_value=0).reset_index()
+    if 'Female' not in sen_matrix.columns:
+        sen_matrix['Female'] = 0
+    if 'Male' not in sen_matrix.columns:
+        sen_matrix['Male'] = 0
+    sen_matrix['Total Staff'] = sen_matrix['Female'] + sen_matrix['Male']
+    sen_matrix['Female %'] = (sen_matrix['Female'] / sen_matrix['Total Staff'] * 100.0).fillna(0).round(1)
 
-    fig_div_level = px.bar(
-        div_matrix,
-        x='Department',
-        y=['Female', 'Male'],
-        color_discrete_sequence=['#FF007F', '#00F2FE'],
-        barmode='stack',
-        facet_col='Role Level',
-        text_auto=True
-    )
-    fig_div_level = apply_plotly_theme(fig_div_level, "Gender Balance by Department & Role Seniority Tier")
-    st.plotly_chart(fig_div_level, use_container_width=True)
+    c_div1, c_div2 = st.columns(2)
+    with c_div1:
+        st.subheader("📊 Headcount by Seniority Tier & Gender")
+        fig_sen_bar = px.bar(
+            sen_matrix,
+            x='Role Level',
+            y=['Female', 'Male'],
+            barmode='group',
+            text_auto=True,
+            color_discrete_sequence=['#FF007F', '#00F2FE']
+        )
+        fig_sen_bar = apply_plotly_theme(fig_sen_bar, "Active Headcount by Seniority Tier & Gender")
+        st.plotly_chart(fig_sen_bar, use_container_width=True)
 
-    st.dataframe(div_matrix, use_container_width=True)
+    with c_div2:
+        st.subheader("🎯 Female Representation % by Seniority Tier")
+        fig_female_pct = px.bar(
+            sen_matrix,
+            x='Female %',
+            y='Role Level',
+            orientation='h',
+            text='Female %',
+            color='Female %',
+            color_continuous_scale=['#00F2FE', '#FF007F']
+        )
+        fig_female_pct.add_vline(x=50.0, line_dash="dash", line_color="#D97706", annotation_text="50% Parity Target")
+        fig_female_pct.update_traces(texttemplate='%{text:.1f}%', textposition='outside')
+        fig_female_pct = apply_plotly_theme(fig_female_pct, "Female Share (%) by Seniority Level")
+        st.plotly_chart(fig_female_pct, use_container_width=True)
+
+    # Detailed Departmental Breakdown Expander / Table
+    with st.expander("🔍 View Department-by-Department Seniority Breakdown Table", expanded=False):
+        div_matrix = filtered_emp.groupby(['Department', 'Role Level', 'Gender']).size().unstack(fill_value=0).reset_index()
+        if 'Female' not in div_matrix.columns:
+            div_matrix['Female'] = 0
+        if 'Male' not in div_matrix.columns:
+            div_matrix['Male'] = 0
+        div_matrix['Total'] = div_matrix['Female'] + div_matrix['Male']
+        div_matrix['Female %'] = (div_matrix['Female'] / div_matrix['Total'] * 100).fillna(0).round(1)
+        st.dataframe(div_matrix, use_container_width=True)
 
 # ------------------------------------------------------------------------------
 # TAB 4: EXIT & ATTRITION DEEP-DIVE
