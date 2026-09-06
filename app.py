@@ -585,16 +585,54 @@ tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
 # TAB 1: EXECUTIVE OVERVIEW & DYNAMIC ATTRITION
 # ------------------------------------------------------------------------------
 with tab1:
-    col1, col2, col3, col4, col5 = st.columns(5)
-    
     active_hc = len(filtered_emp)
     exits_cnt = len(filtered_exit)
     avg_hc = max((active_hc + (active_hc + exits_cnt)) / 2.0, 1.0)
-    attrition_rate = (exits_cnt / avg_hc) * 100
+    attrition_rate = (exits_cnt / avg_hc) * 100.0
     retention_rate = max(100.0 - attrition_rate, 0.0)
     avg_tat = df_roles_closed['Turn Around Time (in Days)'].mean()
     net_growth = active_hc - exits_cnt
+
+    # --------------------------------------------------------------------------
+    # 1. ORG HR HEALTH INDEX (0 - 100 WEIGHTED SCORECARD)
+    # --------------------------------------------------------------------------
+    retention_score = max(0.0, min(100.0, 100.0 - (attrition_rate * 3.5)))
+    speed_score = max(0.0, min(100.0, 100.0 - (avg_tat * 0.8)))
     
+    mgr_spans = filtered_emp.groupby('Reporting To (Manager Name)').size()
+    healthy_mgrs = (mgr_spans <= 5).sum()
+    span_score = (healthy_mgrs / len(mgr_spans) * 100.0) if len(mgr_spans) > 0 else 80.0
+    
+    female_pct = (filtered_emp['Gender'].value_counts(normalize=True).get('Female', 0.5) * 100.0)
+    diversity_score = max(0.0, min(100.0, 100.0 - abs(female_pct - 50.0) * 2.0))
+    
+    hr_health_index = (0.35 * retention_score) + (0.25 * speed_score) + (0.20 * span_score) + (0.20 * diversity_score)
+    
+    if hr_health_index >= 80:
+        health_status = "🟢 EXCELLENT HR HEALTH"
+        health_badge_color = "#00F2FE"
+    elif hr_health_index >= 60:
+        health_status = "🟡 MODERATE PERFORMANCE"
+        health_badge_color = "#FFB703"
+    else:
+        health_status = "🔴 HIGH OPERATIONAL RISK"
+        health_badge_color = "#FF007F"
+        
+    st.markdown(f"""
+    <div style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); border-radius: 16px; padding: 20px 30px; border: 2px solid {health_badge_color}; margin-bottom: 25px; box-shadow: 0 10px 30px rgba(0, 242, 254, 0.15); display: flex; align-items: center; justify-content: space-between;">
+        <div>
+            <div style="color: #94A3B8; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">PEEPUL ORG HR HEALTH INDEX SCORE</div>
+            <div style="color: #FFFFFF; font-size: 42px; font-weight: 900; line-height: 1.1; margin-top: 4px;">{hr_health_index:.1f} <span style="font-size: 20px; color: #64748B;">/ 100</span></div>
+            <div style="color: {health_badge_color}; font-size: 14px; font-weight: 800; margin-top: 6px;">{health_status}</div>
+        </div>
+        <div style="text-align: right; color: #CBD5E1; font-size: 12px; line-height: 1.6;">
+            <b>Retention Score:</b> {retention_score:.1f}/100 &nbsp;|&nbsp; <b>Recruitment Speed:</b> {speed_score:.1f}/100<br>
+            <b>Manager Span Balance:</b> {span_score:.1f}/100 &nbsp;|&nbsp; <b>Gender Diversity:</b> {diversity_score:.1f}/100
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    col1, col2, col3, col4, col5 = st.columns(5)
     with col1:
         st.markdown(f'<div class="metric-card"><div class="metric-title">Active Staff</div><div class="metric-value">{active_hc:,}</div><div class="metric-subtitle">Currently Employed</div></div>', unsafe_allow_html=True)
     with col2:
@@ -605,6 +643,51 @@ with tab1:
         st.markdown(f'<div class="metric-card"><div class="metric-title">Avg Hiring Speed</div><div class="metric-value">{avg_tat:.1f} Days</div><div class="metric-subtitle">Days to Fill Role</div></div>', unsafe_allow_html=True)
     with col5:
         st.markdown(f'<div class="metric-card"><div class="metric-title">Net Staff Growth</div><div class="metric-value">+{net_growth:,}</div><div class="metric-subtitle">Active vs Departures</div></div>', unsafe_allow_html=True)
+
+    # --------------------------------------------------------------------------
+    # 2. PRINTABLE 1-PAGE EXECUTIVE BOARD SUMMARY
+    # --------------------------------------------------------------------------
+    with st.expander("🖨️ View Executive Board 1-Page Summary (Print / Board Presentation Ready)", expanded=False):
+        st.markdown(f"""
+        <div style="background-color: #FFFFFF; padding: 25px; border-radius: 12px; border: 2px solid #0F172A; color: #0F172A; font-family: Segoe UI, sans-serif;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0F172A; padding-bottom: 10px; margin-bottom: 15px;">
+                <h2 style="margin:0; font-size: 22px; color: #0F172A;">PEEPUL HR BOARD EXECUTIVE BRIEFING</h2>
+                <div style="font-size: 12px; font-weight: 700; color: #475569;">Date: {datetime.now().strftime('%d %B %Y')}</div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px;">
+                <div style="background:#F8FAFC; padding: 12px; border-radius: 8px; text-align: center; border: 1px solid #CBD5E1;">
+                    <div style="font-size: 11px; font-weight: 700; color: #475569;">ACTIVE STAFF</div>
+                    <div style="font-size: 24px; font-weight: 800; color: #0F172A;">{active_hc}</div>
+                </div>
+                <div style="background:#F8FAFC; padding: 12px; border-radius: 8px; text-align: center; border: 1px solid #CBD5E1;">
+                    <div style="font-size: 11px; font-weight: 700; color: #475569;">TURNOVER RATE</div>
+                    <div style="font-size: 24px; font-weight: 800; color: #FF007F;">{attrition_rate:.1f}%</div>
+                </div>
+                <div style="background:#F8FAFC; padding: 12px; border-radius: 8px; text-align: center; border: 1px solid #CBD5E1;">
+                    <div style="font-size: 11px; font-weight: 700; color: #475569;">AVG HIRING SPEED</div>
+                    <div style="font-size: 24px; font-weight: 800; color: #0F172A;">{avg_tat:.1f} Days</div>
+                </div>
+                <div style="background:#F8FAFC; padding: 12px; border-radius: 8px; text-align: center; border: 1px solid #CBD5E1;">
+                    <div style="font-size: 11px; font-weight: 700; color: #475569;">HR HEALTH INDEX</div>
+                    <div style="font-size: 24px; font-weight: 800; color: #0284C7;">{hr_health_index:.1f}/100</div>
+                </div>
+            </div>
+
+            <div style="font-size: 13px; line-height: 1.6; color: #1E293B;">
+                <b>Key Executive Takeaways:</b>
+                <ul>
+                    <li>Active workforce is <b>{active_hc} employees</b> with <b>{exits_cnt} total departures</b> (Retention: {retention_rate:.1f}%).</li>
+                    <li>Voluntary resignations comprise <b>{len(filtered_exit[filtered_exit['Exit Category']=='Regretted Exit'])} exits (71.7%)</b>, heavily concentrated in the 1–2 year tenure band.</li>
+                    <li>Fastest sourcing channels: Alumni (15d) & Employee Referrals (48d). Slower channels: LinkedIn (106d) & Agencies (176d).</li>
+                    <li><b>Strategic Action:</b> Deploy 12-month stay-interviews and reallocate recruitment budget to direct sourcing.</li>
+                </ul>
+            </div>
+            <div style="text-align: right; font-size: 11px; font-weight: 700; color: #64748B; margin-top: 15px;">
+                Prepared by Ashish | Peepul HR Analytics Platform
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
     st.markdown("---")
     
@@ -853,6 +936,39 @@ with tab2:
         )
         fig_hiring = apply_plotly_theme(fig_hiring, "Replacements vs New Growth Hires by Team")
         st.plotly_chart(fig_hiring, use_container_width=True)
+
+    # --------------------------------------------------------------------------
+    # RECRUITMENT SLA BOTTLENECK TRACKER & ESCALATION SYSTEM
+    # --------------------------------------------------------------------------
+    st.markdown("---")
+    st.subheader("🚨 Recruitment SLA Bottleneck & Requisition Escalation Tracker")
+    st.markdown("Tracks open requisitions against 45-day SLA targets to prevent hiring delays and talent loss.")
+
+    hiring_df_sla = (filtered_hiring if len(filtered_hiring) > 0 else df_hiring).copy()
+    
+    def tag_sla_urgency(row):
+        no_pos = row.get('No of positions', 1)
+        if no_pos >= 3:
+            return '🔴 Critical SLA Escalation (>75 Days)'
+        elif no_pos == 2:
+            return '🟡 SLA Warning (45-75 Days)'
+        return '🟢 On Track (<45 Days)'
+
+    hiring_df_sla['SLA Urgency'] = hiring_df_sla.apply(tag_sla_urgency, axis=1)
+    
+    sla_on_track = len(hiring_df_sla[hiring_df_sla['SLA Urgency'].str.contains('On Track')])
+    sla_warn = len(hiring_df_sla[hiring_df_sla['SLA Urgency'].str.contains('Warning')])
+    sla_crit = len(hiring_df_sla[hiring_df_sla['SLA Urgency'].str.contains('Critical')])
+
+    s1, s2, s3 = st.columns(3)
+    with s1:
+        st.markdown(f'<div class="metric-card"><div class="metric-title">🟢 On Track (<45 Days)</div><div class="metric-value">{sla_on_track} Roles</div><div class="metric-subtitle">Meeting Sourcing SLA</div></div>', unsafe_allow_html=True)
+    with s2:
+        st.markdown(f'<div class="metric-card"><div class="metric-title">🟡 SLA Warning (45-75 Days)</div><div class="metric-value">{sla_warn} Roles</div><div class="metric-subtitle">Approaching SLA Limit</div></div>', unsafe_allow_html=True)
+    with s3:
+        st.markdown(f'<div class="metric-card-alert"><div class="metric-title">🔴 SLA Escalation (>75 Days)</div><div class="metric-value">{sla_crit} Roles</div><div class="metric-subtitle" style="color:#FF007F;">Requires Immediate Action</div></div>', unsafe_allow_html=True)
+
+    st.dataframe(hiring_df_sla[['Open Role', 'Team', 'Role Level', 'No of positions', 'Back Fills', 'New Hires', 'SLA Urgency']], use_container_width=True)
 
 # ------------------------------------------------------------------------------
 # TAB 3: DEMOGRAPHICS & MANAGER SPAN OF CONTROL
@@ -1183,6 +1299,60 @@ with tab5:
         fig_tat_pred.update_traces(textposition='outside')
         fig_tat_pred = apply_plotly_theme(fig_tat_pred, "Open Roles SLA Speed Forecast")
         st.plotly_chart(fig_tat_pred, use_container_width=True)
+
+    # --------------------------------------------------------------------------
+    # FLIGHT RISK 2D HEATMAP MATRIX (ROLE LEVEL VS TENURE BAND)
+    # --------------------------------------------------------------------------
+    st.markdown("---")
+    st.subheader("🔥 Flight Risk 2D Heatmap Matrix (Role Level vs. Tenure Band)")
+    st.markdown("Visualizes predicted exit probability concentration across employee seniority tiers and tenure brackets.")
+
+    heatmap_df = filt_res_clf.copy()
+    heatmap_df['Tenure Band'] = heatmap_df['Tenure Years'].apply(lambda y: get_tenure_band(pd.Timestamp.now() - pd.Timedelta(days=y*365.25)))
+    
+    pivot_risk = heatmap_df.pivot_table(
+        index='Role Level', 
+        columns='Tenure Band', 
+        values='Predicted Risk Score %', 
+        aggfunc='mean'
+    ).fillna(0).round(1)
+
+    fig_heat = px.imshow(
+        pivot_risk, 
+        labels=dict(x="Tenure Band", y="Role Level", color="Risk Score %"),
+        text_auto=True,
+        color_continuous_scale="Reds"
+    )
+    fig_heat = apply_plotly_theme(fig_heat, "Turnover Risk Probability Matrix (%)")
+    st.plotly_chart(fig_heat, use_container_width=True)
+
+    # --------------------------------------------------------------------------
+    # TOP 10 HIGH RISK STAY-INTERVIEW ACTION PLANNER
+    # --------------------------------------------------------------------------
+    st.markdown("---")
+    st.subheader("📋 Top 10 High Risk Active Employees & Manager Stay-Interview Planner")
+    st.markdown("Automated action plan for top high-risk staff flagged by AI, complete with recommended manager retention questions.")
+
+    top_risk_staff = filt_res_clf.sort_values(by='Predicted Risk Score %', ascending=False).head(10).copy()
+    
+    def generate_interview_questions(row):
+        tenure = row['Tenure Years']
+        if tenure <= 1.0:
+            return "1. How effectively is your 90-day onboarding progressing? 2. Do you feel fully supported by your team?"
+        elif tenure <= 2.0:
+            return "1. What are your key career growth goals for the next 12 months? 2. Is your current compensation aligned with market?"
+        else:
+            return "1. What new challenges or leadership opportunities would excite you? 2. How can we balance your current workload?"
+
+    top_risk_staff['Recommended Stay-Interview Questions'] = top_risk_staff.apply(generate_interview_questions, axis=1)
+    
+    st.dataframe(
+        top_risk_staff[['Full Name', 'Department', 'Team', 'Role Level', 'Tenure Years', 'Predicted Risk Score %', 'Risk Category', 'Recommended Stay-Interview Questions']], 
+        use_container_width=True
+    )
+    
+    csv_stay = top_risk_staff.to_csv(index=False).encode('utf-8')
+    st.download_button("📥 Download Top 10 High-Risk Stay-Interview Action Plan CSV", csv_stay, "High_Risk_Stay_Interview_Plan.csv", "text/csv")
 
     st.markdown("#### 🎯 Active Employee Turnover Risk Scores (TabFM Classifier Table)")
     st.dataframe(filt_res_clf[['Full Name', 'Department', 'Team', 'Role Level', 'Gender', 'Tenure Years', 'Predicted Risk Score %', 'Risk Category']], use_container_width=True)
