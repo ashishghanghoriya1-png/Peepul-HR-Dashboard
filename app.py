@@ -658,7 +658,11 @@ with tab1:
     avg_hc = max((active_hc + (active_hc + exits_cnt)) / 2.0, 1.0)
     attrition_rate = (exits_cnt / avg_hc) * 100.0
     retention_rate = max(100.0 - attrition_rate, 0.0)
-    avg_tat = df_roles_closed['Turn Around Time (in Days)'].mean()
+    
+    avg_tat_val = float(df_roles_closed['Turn Around Time (in Days)'].dropna().mean()) if (len(df_roles_closed) > 0 and len(df_roles_closed['Turn Around Time (in Days)'].dropna()) > 0) else 0.0
+    if np.isnan(avg_tat_val):
+        avg_tat_val = 0.0
+    avg_tat = avg_tat_val
     net_growth = active_hc - exits_cnt
 
     # --------------------------------------------------------------------------
@@ -675,6 +679,8 @@ with tab1:
     diversity_score = max(0.0, min(100.0, 100.0 - abs(female_pct - 50.0) * 2.0))
     
     hr_health_index = (0.35 * retention_score) + (0.25 * speed_score) + (0.20 * span_score) + (0.20 * diversity_score)
+    if np.isnan(hr_health_index):
+        hr_health_index = 80.0
     
     if hr_health_index >= 80:
         health_status = "🟢 EXCELLENT HR HEALTH"
@@ -715,6 +721,9 @@ with tab1:
     # --------------------------------------------------------------------------
     # 2. PRINTABLE 1-PAGE EXECUTIVE BOARD SUMMARY
     # --------------------------------------------------------------------------
+    vol_exits_cnt = len(filtered_exit[filtered_exit['Exit Category'] == 'Regretted Exit']) if (len(filtered_exit) > 0 and 'Exit Category' in filtered_exit.columns) else 0
+    vol_pct = (vol_exits_cnt / max(exits_cnt, 1) * 100.0)
+
     with st.expander("🖨️ View Executive Board 1-Page Summary (Print / Board Presentation Ready)", expanded=False):
         st.markdown(f"""
         <div class="briefing-card">
@@ -746,7 +755,7 @@ with tab1:
                 <b style="color: #0F172A !important;">Key Executive Takeaways:</b>
                 <ul style="color: #1E293B !important;">
                     <li style="color: #1E293B !important;"><span style="color: #1E293B !important;">Active workforce is <b>{active_hc} employees</b> with <b>{exits_cnt} total departures</b> (Retention: {retention_rate:.1f}%).</span></li>
-                    <li style="color: #1E293B !important;"><span style="color: #1E293B !important;">Voluntary resignations comprise <b>{len(filtered_exit[filtered_exit['Exit Category']=='Regretted Exit'])} exits (71.7%)</b>, heavily concentrated in the 1–2 year tenure band.</span></li>
+                    <li style="color: #1E293B !important;"><span style="color: #1E293B !important;">Voluntary resignations comprise <b>{vol_exits_cnt} exits ({vol_pct:.1f}%)</b>, heavily concentrated in the 1–2 year tenure band.</span></li>
                     <li style="color: #1E293B !important;"><span style="color: #1E293B !important;">Fastest sourcing channels: Alumni (15d) & Employee Referrals (48d). Slower channels: LinkedIn (106d) & Agencies (176d).</span></li>
                     <li style="color: #1E293B !important;"><span style="color: #1E293B !important;"><b>Strategic Action:</b> Deploy 12-month stay-interviews and reallocate recruitment budget to direct sourcing.</span></li>
                 </ul>
