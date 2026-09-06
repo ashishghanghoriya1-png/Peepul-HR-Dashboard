@@ -1187,10 +1187,133 @@ with tab1:
         st.markdown(f'<div class="metric-card"><div class="metric-title">🟢 30-Day Checkpoints</div><div class="metric-value">{c30} Staff</div><div class="metric-subtitle">1st Month Check-in</div></div>', unsafe_allow_html=True)
     with ob2:
         st.markdown(f'<div class="metric-card"><div class="metric-title">🟡 60-Day Checkpoints</div><div class="metric-value">{c60} Staff</div><div class="metric-subtitle">2nd Month Check-in</div></div>', unsafe_allow_html=True)
-    with ob3:
-        st.markdown(f'<div class="metric-card"><div class="metric-title">🟠 90-Day Checkpoints</div><div class="metric-value">{c90} Staff</div><div class="metric-subtitle">Probation Review</div></div>', unsafe_allow_html=True)
-
     st.dataframe(onb_active[['Full Name', 'Department', 'Team', 'Designation', 'Reporting To (Manager Name)', 'Date of joining', 'Tenure_Days', 'Onboarding Milestone']].rename(columns={'Tenure_Days': 'Days in Org', 'Reporting To (Manager Name)': 'Manager'}), use_container_width=True)
+
+    # --------------------------------------------------------------------------
+    # 12-MONTH WORKFORCE HEADCOUNT CAPACITY & BUDGET FORECASTER
+    # --------------------------------------------------------------------------
+    st.markdown("---")
+    st.subheader("🔮 12-Month Workforce Headcount & Budget Forecaster")
+    st.markdown("Project expected active headcount growth, monthly exit volume, and total hiring budget required over the next 12 months.")
+
+    f_col1, f_col2 = st.columns(2)
+    with f_col1:
+        proj_monthly_exit_pct = st.slider("Projected Monthly Exit Rate (% of Headcount):", min_value=0.5, max_value=5.0, value=1.5, step=0.1)
+        proj_monthly_hires = st.slider("Projected Monthly Hiring Target (New Hires/Month):", min_value=1, max_value=20, value=5, step=1)
+    with f_col2:
+        proj_cost_per_hire = st.number_input("Est. Average Cost per New Hire (₹):", min_value=25000, value=120000, step=10000)
+        proj_retention_investment = st.number_input("Monthly HR Retention Budget (₹):", min_value=10000, value=50000, step=10000)
+
+    # Forecast calculation loop for 12 months
+    months_ahead = [(pd.Timestamp.now() + pd.DateOffset(months=i)).strftime('%b %Y') for i in range(1, 13)]
+    curr_hc = active_hc
+    forecast_hc = []
+    forecast_exits = []
+    forecast_hires = []
+    cum_hiring_budget = []
+    running_budget = 0
+
+    for m in months_ahead:
+        m_exits = int(round(curr_hc * (proj_monthly_exit_pct / 100.0)))
+        m_hires = proj_monthly_hires
+        curr_hc = max(1, curr_hc - m_exits + m_hires)
+        m_cost = (m_hires * proj_cost_per_hire) + proj_retention_investment
+        running_budget += m_cost
+        
+        forecast_hc.append(curr_hc)
+        forecast_exits.append(m_exits)
+        forecast_hires.append(m_hires)
+        cum_hiring_budget.append(running_budget)
+
+    fc_df = pd.DataFrame({
+        'Month': months_ahead,
+        'Projected Headcount': forecast_hc,
+        'Projected Exits': forecast_exits,
+        'Projected New Hires': forecast_hires,
+        'Cumulative HR Budget (₹)': cum_hiring_budget
+    })
+
+    fig_fc = px.line(
+        fc_df, 
+        x='Month', 
+        y='Projected Headcount', 
+        text='Projected Headcount', 
+        markers=True,
+        color_discrete_sequence=['#00F2FE']
+    )
+    fig_fc.update_traces(textposition='top center')
+    fig_fc = apply_plotly_theme(fig_fc, "12-Month Projected Workforce Headcount Trajectory")
+    st.plotly_chart(fig_fc, use_container_width=True)
+
+    fc1, fc2, fc3 = st.columns(3)
+    with fc1:
+        st.markdown(f'<div class="metric-card"><div class="metric-title">12-Mo Final Headcount</div><div class="metric-value">{forecast_hc[-1]:,}</div><div class="metric-subtitle">Net Change: {forecast_hc[-1] - active_hc:+} Staff</div></div>', unsafe_allow_html=True)
+    with fc2:
+        st.markdown(f'<div class="metric-card-alert"><div class="metric-title">Total Expected Exits</div><div class="metric-value">{sum(forecast_exits):,}</div><div class="metric-subtitle">Over 12 Months</div></div>', unsafe_allow_html=True)
+    with fc3:
+        st.markdown(f'<div class="metric-card"><div class="metric-title">Total 12-Mo HR Budget</div><div class="metric-value">₹{cum_hiring_budget[-1]:,}</div><div class="metric-subtitle">Hiring & Retention Budget</div></div>', unsafe_allow_html=True)
+
+    # --------------------------------------------------------------------------
+    # INTERACTIVE HR ACTION TASK BOARD (WORKFLOW KANBAN CHECKLIST)
+    # --------------------------------------------------------------------------
+    st.markdown("---")
+    st.subheader("⚡ Interactive HR Action Task Board & Manager Checklist")
+    st.markdown("Track and manage high-priority HR stay interviews, recruitment escalations, and onboarding reviews.")
+
+    if 'hr_tasks' not in st.session_state:
+        st.session_state['hr_tasks'] = [
+            {"Task": "Schedule 12-Month Stay Interview for High-Risk Mid-Tenure Staff", "Category": "Stay Interview", "Status": "To Do", "Owner": "HR Lead"},
+            {"Task": "Review Sourcing SLA for Open Roles Exceeding 45 Days", "Category": "Recruitment SLA", "Status": "In Progress", "Owner": "Talent Acquisition"},
+            {"Task": "Conduct 90-Day Probation Review for New Joiners", "Category": "Onboarding", "Status": "To Do", "Owner": "People Manager"},
+            {"Task": "Re-allocate Hiring Channel Budget to Employee Referrals", "Category": "Budgeting", "Status": "Completed", "Owner": "HR Director"}
+        ]
+
+    # Task input form
+    with st.expander("➕ Add Custom HR Action Task", expanded=False):
+        t_col1, t_col2, t_col3 = st.columns(3)
+        with t_col1:
+            new_task_desc = st.text_input("Task Description:")
+        with t_col2:
+            new_task_cat = st.selectbox("Category:", ["Stay Interview", "Recruitment SLA", "Onboarding", "Budgeting", "Manager Support"])
+        with t_col3:
+            new_task_owner = st.text_input("Assigned Owner:", value="HR Team")
+        
+        if st.button("➕ Add Task to Workflow"):
+            if new_task_desc.strip():
+                st.session_state['hr_tasks'].append({
+                    "Task": new_task_desc.strip(),
+                    "Category": new_task_cat,
+                    "Status": "To Do",
+                    "Owner": new_task_owner.strip()
+                })
+                st.rerun()
+
+    # Display Task List with Editable Statuses
+    tasks_df = pd.DataFrame(st.session_state['hr_tasks'])
+    
+    st.markdown("#### 📋 Active Action Checklist")
+    for idx, row in tasks_df.iterrows():
+        t_c1, t_c2, t_c3, t_c4 = st.columns([3, 1.5, 1.5, 1])
+        with t_c1:
+            st.markdown(f"**{row['Task']}** *({row['Category']})*")
+        with t_c2:
+            st.markdown(f"👤 `{row['Owner']}`")
+        with t_c3:
+            new_status = st.selectbox(
+                f"Status #{idx+1}", 
+                ["To Do", "In Progress", "Completed"], 
+                index=["To Do", "In Progress", "Completed"].index(row['Status']),
+                key=f"task_status_{idx}"
+            )
+            st.session_state['hr_tasks'][idx]['Status'] = new_status
+        with t_c4:
+            if st.button("❌", key=f"del_task_{idx}"):
+                st.session_state['hr_tasks'].pop(idx)
+                st.rerun()
+
+    tasks_updated_df = pd.DataFrame(st.session_state['hr_tasks'])
+    csv_tasks = tasks_updated_df.to_csv(index=False).encode('utf-8')
+    st.download_button("📥 Download Action Task Checklist CSV", csv_tasks, "Peepul_HR_Action_Tasks.csv", "text/csv")
 
 # ------------------------------------------------------------------------------
 # TAB 2: RECRUITMENT SPEED & HIRING SOURCE ROI
@@ -1694,6 +1817,51 @@ with tab5:
     csv_fm = fm_df.to_csv(index=False).encode('utf-8')
     st.download_button("📥 Download Departmental Matrix CSV", csv_fm, "Tab_FM_Functional_Matrix.csv", "text/csv")
     
+    # --------------------------------------------------------------------------
+    # DEPARTMENTAL HR EFFICIENCY LEADERBOARD SCORECARD
+    # --------------------------------------------------------------------------
+    st.markdown("---")
+    st.subheader("🏆 Departmental HR Efficiency Leaderboard")
+    st.markdown("Ranks organizational departments on a composite 0–100 HR Efficiency Score evaluating Retention Rate, Hiring Speed, Manager Span Balance, and Gender Diversity.")
+
+    leaderboard_df = dept_bench.copy()
+    
+    def calc_dept_efficiency(row):
+        ret_score = max(0.0, min(100.0, 100.0 - (row['Turnover Rate %'] * 3.5)))
+        span_ratio = min(1.0, 5.0 / max(row['Active_Staff'] / max(row['Manager_Count'], 1), 1.0)) * 100.0
+        div_score = max(0.0, min(100.0, 100.0 - abs(row['Female %'] - 50.0) * 2.0))
+        score = (0.40 * ret_score) + (0.30 * span_ratio) + (0.30 * div_score)
+        return round(score, 1)
+
+    leaderboard_df['HR Efficiency Score'] = leaderboard_df.apply(calc_dept_efficiency, axis=1)
+    leaderboard_df = leaderboard_df.sort_values(by='HR Efficiency Score', ascending=False).reset_index(drop=True)
+    
+    ranks = []
+    for i in range(len(leaderboard_df)):
+        if i == 0:
+            ranks.append("🥇 1st Rank (Gold)")
+        elif i == 1:
+            ranks.append("🥈 2nd Rank (Silver)")
+        elif i == 2:
+            ranks.append("🥉 3rd Rank (Bronze)")
+        else:
+            ranks.append(f"🏅 {i+1}th Rank")
+            
+    leaderboard_df['Rank Badge'] = ranks
+
+    st.dataframe(
+        leaderboard_df[['Rank Badge', 'Department', 'Active_Staff', 'Turnover Rate %', 'Avg_Tenure', 'Female %', 'HR Efficiency Score']].rename(columns={
+            'Active_Staff': 'Active Staff',
+            'Avg_Tenure': 'Avg Tenure (Yrs)',
+            'Female %': 'Female Representation %',
+            'HR Efficiency Score': 'HR Efficiency Index (0-100)'
+        }),
+        use_container_width=True
+    )
+    
+    csv_lead = leaderboard_df.to_csv(index=False).encode('utf-8')
+    st.download_button("📥 Download Department Leaderboard CSV", csv_lead, "Departmental_HR_Leaderboard.csv", "text/csv")
+    
     st.markdown("---")
     st.subheader("👔 Manager Team Size & Turnover Matrix (Tab FM)")
     mgr_emp = filtered_emp.groupby('Reporting To (Manager Name)').size().reset_index(name='Direct Reports')
@@ -1806,6 +1974,77 @@ with tab5:
     )
     fig_heat = apply_plotly_theme(fig_heat, "Turnover Risk Probability Matrix (%)")
     st.plotly_chart(fig_heat, use_container_width=True)
+
+    # --------------------------------------------------------------------------
+    # 9-BOX TALENT MATRIX (PERFORMANCE/TENURE IMPACT VS EXIT RISK)
+    # --------------------------------------------------------------------------
+    st.markdown("---")
+    st.subheader("📊 9-Box Talent Matrix: Staff Impact Tier vs. Exit Risk")
+    st.markdown("Categorizes active employees into a 3x3 strategic talent matrix combining role tenure impact and AI predicted flight risk.")
+
+    nine_df = filt_res_clf.copy()
+    
+    def tag_impact_tier(row):
+        tenure = row['Tenure Years']
+        role = str(row['Role Level'])
+        if tenure >= 2.0 or 'Senior' in role or 'Lead' in role or 'Head' in role or 'Manager' in role:
+            return 'High Impact Staff'
+        elif tenure >= 1.0:
+            return 'Core Impact Staff'
+        return 'Emerging Staff'
+
+    nine_df['Impact Tier'] = nine_df.apply(tag_impact_tier, axis=1)
+    
+    def tag_9box_quadrant(row):
+        impact = row['Impact Tier']
+        risk = row['Risk Category']
+        
+        if impact == 'High Impact Staff' and 'High Risk' in risk:
+            return '🔴 Star Talent at Flight Risk (URGENT)'
+        elif impact == 'High Impact Staff' and 'Medium Risk' in risk:
+            return '🟡 Key Contributor Watch'
+        elif impact == 'High Impact Staff' and 'Low Risk' in risk:
+            return '🟢 Core Organizational Pillar'
+        elif impact == 'Core Impact Staff' and 'High Risk' in risk:
+            return '🟠 High Operational Exit Risk'
+        elif impact == 'Core Impact Staff' and 'Medium Risk' in risk:
+            return '🟡 Stable Contributor'
+        elif impact == 'Core Impact Staff' and 'Low Risk' in risk:
+            return '🟢 Solid Performer'
+        elif 'High Risk' in risk:
+            return '🟠 Early Onboarding Exit Risk'
+        elif 'Medium Risk' in risk:
+            return '🟡 Developing Talent'
+        else:
+            return '🟢 New Joiner Steady'
+
+    nine_df['9-Box Category'] = nine_df.apply(tag_9box_quadrant, axis=1)
+
+    pivot_9box = nine_df.pivot_table(
+        index='Impact Tier', 
+        columns='Risk Category', 
+        values='Full Name', 
+        aggfunc='count'
+    ).fillna(0).astype(int)
+
+    fig_9box = px.imshow(
+        pivot_9box, 
+        labels=dict(x="Predicted Exit Risk Tier", y="Staff Impact Tier", color="Employee Count"),
+        text_auto=True,
+        color_continuous_scale="OrRd"
+    )
+    fig_9box = apply_plotly_theme(fig_9box, "9-Box Talent & Flight Risk Matrix (Headcount)")
+    st.plotly_chart(fig_9box, use_container_width=True)
+
+    high_risk_stars = nine_df[nine_df['9-Box Category'] == '🔴 Star Talent at Flight Risk (URGENT)']
+    st.markdown(f"#### 🔴 High Impact Staff Flagged at Flight Risk ({len(high_risk_stars)} Employees)")
+    if len(high_risk_stars) > 0:
+        st.dataframe(high_risk_stars[['Full Name', 'Department', 'Team', 'Role Level', 'Tenure Years', 'Predicted Risk Score %', '9-Box Category']], use_container_width=True)
+    else:
+        st.success("No High-Impact Star Talent currently flagged in the High Exit Risk tier.")
+
+    csv_9box = nine_df.to_csv(index=False).encode('utf-8')
+    st.download_button("📥 Download 9-Box Talent Matrix CSV", csv_9box, "Peepul_9Box_Talent_Matrix.csv", "text/csv")
 
     # --------------------------------------------------------------------------
     # TOP 10 HIGH RISK STAY-INTERVIEW ACTION PLANNER
