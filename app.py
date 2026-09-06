@@ -202,6 +202,60 @@ def get_tenure_band(date_joined, ref_date=None):
     else:
         return "5+ Years"
 
+# Master Team Standardization Map (Clubs similar & variant team names across all datasets)
+MASTER_TEAM_MAP = {
+    # Academic Excellence / CAE
+    'CAE': 'Center of Academic Excellence (CAE)',
+    'Center of Academic Excellence': 'Center of Academic Excellence (CAE)',
+    
+    # School Variants
+    'Amar Colony school': 'Amar Colony School',
+    'Jeewan Nagar School': 'Jeevan Nagar School',
+    'Exemplar School': 'Exemplar Schools',
+    'Lajpat Nagar, Amar Colony, Jeevan Nagar schools': 'Exemplar Schools',
+    
+    # CM Rise Variants
+    'CMRS': 'CM Rise Schools',
+    'CM Rise Schools (PMU)': 'CM Rise Schools',
+    'PMU MP': 'CM Rise Schools',
+    'CM Rise TPD (PMU)': 'CM Rise TPD',
+    'MP TPD': 'CM Rise TPD',
+    'TPD MP': 'CM Rise TPD',
+    
+    # LiftEd / DIB Variants
+    'DIB (LiftEd)': 'LiftEd',
+    'LiftEd (PMU)': 'LiftEd',
+    
+    # PM SHRI Variants
+    'PM Shri': 'PM SHRI',
+    'PM Shri Schools': 'PM SHRI',
+    'PM SHRI (PMU)': 'PM SHRI',
+    
+    # Delhi Scale / PMU Delhi Variants
+    'Delhi Programmes': 'Delhi Scale Programme',
+    'PMU Delhi': 'Delhi Scale Programme',
+    'Delhi Scale Programme (MTPD)': 'Delhi Scale Programme',
+    'Delhi Scale Programme (PMU)': 'Delhi Scale Programme',
+    'MCD Scale (MTPD)': 'Delhi Scale Programme',
+    
+    # Digital Literacy / Education Variants
+    'Digital Literacy, MP': 'Digital Literacy (MP)',
+    'Digital Education (MP)': 'Digital Literacy (MP)',
+    'Digital Literacy, Delhi': 'Digital Literacy (Delhi)',
+    'Digital Literacy, Delhi + Amar Colony School': 'Digital Literacy (Delhi)',
+    
+    # Central Sub-teams & Department standardizations
+    'Central Team': 'Central',
+    'Central - Gender': 'Gender',
+    'Central - Admin': 'Administration',
+    'Finance and Administration': 'Administration & Finance',
+    'Central - Fundraising': 'Fundraising',
+    'Central - HR': 'Human Resources',
+    'HR': 'Human Resources',
+    'Central - MEL': 'Monitoring, Evaluation & Learning (MEL)',
+    'Monitoring, Evaluation and Learning': 'Monitoring, Evaluation & Learning (MEL)'
+}
+
 def load_and_process_data():
     excel_path = r"HR Data.xlsx"
     if not os.path.exists(excel_path):
@@ -234,63 +288,11 @@ def load_and_process_data():
 
     # Safely convert numeric columns
     df_roles_closed['No of positions'] = pd.to_numeric(df_roles_closed['No of positions'], errors='coerce').fillna(1).astype(int)
-    # Master Team Standardization Map (Clubs similar & variant team names across all datasets)
-    master_team_map = {
-        # Academic Excellence / CAE
-        'CAE': 'Center of Academic Excellence (CAE)',
-        'Center of Academic Excellence': 'Center of Academic Excellence (CAE)',
-        
-        # School Variants
-        'Amar Colony school': 'Amar Colony School',
-        'Jeewan Nagar School': 'Jeevan Nagar School',
-        'Exemplar School': 'Exemplar Schools',
-        'Lajpat Nagar, Amar Colony, Jeevan Nagar schools': 'Exemplar Schools',
-        
-        # CM Rise Variants
-        'CMRS': 'CM Rise Schools',
-        'CM Rise Schools (PMU)': 'CM Rise Schools',
-        'PMU MP': 'CM Rise Schools',
-        'CM Rise TPD (PMU)': 'CM Rise TPD',
-        'MP TPD': 'CM Rise TPD',
-        'TPD MP': 'CM Rise TPD',
-        
-        # LiftEd / DIB Variants
-        'DIB (LiftEd)': 'LiftEd',
-        'LiftEd (PMU)': 'LiftEd',
-        
-        # PM SHRI Variants
-        'PM Shri': 'PM SHRI',
-        'PM Shri Schools': 'PM SHRI',
-        'PM SHRI (PMU)': 'PM SHRI',
-        
-        # Delhi Scale / PMU Delhi Variants
-        'Delhi Programmes': 'Delhi Scale Programme',
-        'PMU Delhi': 'Delhi Scale Programme',
-        'Delhi Scale Programme (MTPD)': 'Delhi Scale Programme',
-        'Delhi Scale Programme (PMU)': 'Delhi Scale Programme',
-        'MCD Scale (MTPD)': 'Delhi Scale Programme',
-        
-        # Digital Literacy / Education Variants
-        'Digital Literacy, MP': 'Digital Literacy (MP)',
-        'Digital Education (MP)': 'Digital Literacy (MP)',
-        'Digital Literacy, Delhi': 'Digital Literacy (Delhi)',
-        'Digital Literacy, Delhi + Amar Colony School': 'Digital Literacy (Delhi)',
-        
-        # Central Sub-teams & Department standardizations
-        'Central Team': 'Central',
-        'Central - Gender': 'Gender',
-        'Central - Admin': 'Administration',
-        'Finance and Administration': 'Administration & Finance',
-        'Central - Fundraising': 'Fundraising',
-        'Central - HR': 'Human Resources',
-        'HR': 'Human Resources',
-        'Central - MEL': 'Monitoring, Evaluation & Learning (MEL)',
-        'Monitoring, Evaluation and Learning': 'Monitoring, Evaluation & Learning (MEL)'
-    }
 
     for df in [df_hiring, df_roles_closed, df_emp, df_exit]:
         if 'Team' in df.columns:
-            df['Team'] = df['Team'].astype(str).str.strip().replace(master_team_map)
+            df['Raw_Team'] = df['Team'].astype(str).str.strip()
+            df['Team'] = df['Raw_Team'].replace(MASTER_TEAM_MAP)
 
     df_hiring['No of positions'] = pd.to_numeric(df_hiring['No of positions'], errors='coerce').fillna(1).astype(int)
     df_hiring['Back Fills'] = pd.to_numeric(df_hiring['Back Fills'], errors='coerce').fillna(0).astype(int)
@@ -413,6 +415,26 @@ else:
 
 st.sidebar.title("⚡ HR Analytics Control")
 st.sidebar.markdown("Executive workforce & recruitment intelligence platform.")
+
+# Team Bifurcation & Consolidation Toggle
+st.sidebar.markdown("---")
+st.sidebar.subheader("⚙️ Team Naming View")
+team_view_mode = st.sidebar.radio(
+    "Select Team Classification:",
+    ["Consolidated Teams (Standardized)", "Raw / Bifurcated Teams (Original Excel)"],
+    index=0,
+    help="Select 'Consolidated Teams' to club similar sub-teams, or 'Raw / Bifurcated Teams' to see detailed original names from Excel."
+)
+
+# Dynamically apply Team View Mode across all DataFrames
+for df in [df_hiring, df_roles_closed, df_emp, df_exit]:
+    if 'Raw_Team' in df.columns:
+        if "Consolidated" in team_view_mode:
+            df['Team'] = df['Raw_Team'].replace(MASTER_TEAM_MAP)
+        else:
+            df['Team'] = df['Raw_Team']
+
+res_clf, hiring_df = compute_tabfm_models(df_emp, df_exit, df_roles_closed, df_hiring)
 
 # Date Range Presets
 st.sidebar.subheader("📅 Date Window Preset")
