@@ -12,6 +12,217 @@ from datetime import datetime
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.preprocessing import OrdinalEncoder
 
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib import colors
+
+from pptx import Presentation
+from pptx.util import Inches, Pt
+from pptx.dml.color import RGBColor
+
+def generate_board_brief_pdf(active_hc, exits_cnt, attrition_rate, retention_rate, avg_tat, hr_health_index, vol_exits_cnt, vol_pct):
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(
+        buffer, 
+        pagesize=letter, 
+        rightMargin=36, 
+        leftMargin=36, 
+        topMargin=36, 
+        bottomMargin=36
+    )
+    styles = getSampleStyleSheet()
+    story = []
+
+    title_style = ParagraphStyle(
+        'DocTitle',
+        parent=styles['Heading1'],
+        fontName='Helvetica-Bold',
+        fontSize=20,
+        leading=24,
+        textColor=colors.HexColor('#0F172A'),
+        spaceAfter=4
+    )
+    subtitle_style = ParagraphStyle(
+        'DocSubTitle',
+        parent=styles['Normal'],
+        fontName='Helvetica-Bold',
+        fontSize=10,
+        leading=12,
+        textColor=colors.HexColor('#475569'),
+        spaceAfter=15
+    )
+    header_box_style = ParagraphStyle(
+        'BoxHeader',
+        parent=styles['Normal'],
+        fontName='Helvetica-Bold',
+        fontSize=9,
+        leading=11,
+        alignment=1,
+        textColor=colors.HexColor('#475569')
+    )
+    val_box_style = ParagraphStyle(
+        'BoxVal',
+        parent=styles['Normal'],
+        fontName='Helvetica-Bold',
+        fontSize=20,
+        leading=24,
+        alignment=1,
+        textColor=colors.HexColor('#0F172A')
+    )
+    val_alert_style = ParagraphStyle(
+        'BoxValAlert',
+        parent=styles['Normal'],
+        fontName='Helvetica-Bold',
+        fontSize=20,
+        leading=24,
+        alignment=1,
+        textColor=colors.HexColor('#FF007F')
+    )
+    val_score_style = ParagraphStyle(
+        'BoxValScore',
+        parent=styles['Normal'],
+        fontName='Helvetica-Bold',
+        fontSize=20,
+        leading=24,
+        alignment=1,
+        textColor=colors.HexColor('#0284C7')
+    )
+    body_style = ParagraphStyle(
+        'BodyTextCustom',
+        parent=styles['Normal'],
+        fontName='Helvetica',
+        fontSize=11,
+        leading=16,
+        textColor=colors.HexColor('#1E293B')
+    )
+    bullet_style = ParagraphStyle(
+        'BulletCustom',
+        parent=styles['Normal'],
+        fontName='Helvetica',
+        fontSize=10.5,
+        leading=15,
+        textColor=colors.HexColor('#1E293B'),
+        leftIndent=15,
+        spaceAfter=6
+    )
+
+    story.append(Paragraph("PEEPUL HR BOARD EXECUTIVE BRIEFING", title_style))
+    story.append(Paragraph(f"Generated: {datetime.now().strftime('%d %B %Y')} | Confidential Board Document", subtitle_style))
+    story.append(Spacer(1, 5))
+
+    data = [
+        [
+            Paragraph("<b>ACTIVE STAFF</b>", header_box_style),
+            Paragraph("<b>TURNOVER RATE</b>", header_box_style),
+            Paragraph("<b>AVG HIRING SPEED</b>", header_box_style),
+            Paragraph("<b>HR HEALTH INDEX</b>", header_box_style)
+        ],
+        [
+            Paragraph(f"{active_hc:,}", val_box_style),
+            Paragraph(f"{attrition_rate:.1f}%", val_alert_style),
+            Paragraph(f"{avg_tat:.1f} Days", val_box_style),
+            Paragraph(f"{hr_health_index:.1f}/100", val_score_style)
+        ]
+    ]
+    t = Table(data, colWidths=[135, 135, 135, 135])
+    t.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#F8FAFC')),
+        ('BOX', (0,0), (-1,-1), 1, colors.HexColor('#CBD5E1')),
+        ('INNERGRID', (0,0), (-1,-1), 0.5, colors.HexColor('#CBD5E1')),
+        ('TOPPADDING', (0,0), (-1,-1), 8),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 8),
+        ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+    ]))
+    story.append(t)
+    story.append(Spacer(1, 20))
+
+    story.append(Paragraph("<b>Executive Summary & Strategic Takeaways:</b>", body_style))
+    story.append(Spacer(1, 8))
+
+    story.append(Paragraph(f"• <b>Workforce Scale:</b> Active workforce stands at <b>{active_hc} employees</b> across organizational departments, with <b>{exits_cnt} total departures</b> recorded over the tracking period (Workforce Retention Rate: <b>{retention_rate:.1f}%</b>).", bullet_style))
+    story.append(Paragraph(f"• <b>Voluntary Resignation Breakdown:</b> Voluntary departures account for <b>{vol_exits_cnt} exits ({vol_pct:.1f}%)</b>, with the highest concentration observed in the <b>1 to 2 year tenure bracket</b>.", bullet_style))
+    story.append(Paragraph(f"• <b>Recruitment SLA & Sourcing Velocity:</b> Sourcing turnaround time averages <b>{avg_tat:.1f} days</b>. Sourcing speed is fastest through Alumni (15d) and Employee Referrals (48d), while recruitment agencies (176d) and job boards (106d) experience SLA bottlenecks.", bullet_style))
+    story.append(Paragraph(f"• <b>Strategic Action Plan:</b> Implement mandatory 12-month stay interviews for high-risk personnel, re-allocate sourcing budgets toward direct employee referrals, and optimize team lead report ratios.", bullet_style))
+
+    story.append(Spacer(1, 20))
+    story.append(Paragraph("<font color='#64748B' size='9'><b>Prepared by Ashish</b> | Peepul HR Analytics Intelligence Platform</font>", ParagraphStyle('Footer', parent=styles['Normal'], alignment=2)))
+
+    doc.build(story)
+    buffer.seek(0)
+    return buffer.getvalue()
+
+def generate_csuite_pptx(active_hc, depts_cnt, exits_cnt, vol_exits_cnt, attrition_rate, retention_rate, net_growth, avg_tat, open_positions, vacancy_rate, high_risk_cnt, avg_risk_score, top_dept_name, max_dept_hc):
+    prs = Presentation()
+    prs.slide_width = Inches(13.333)
+    prs.slide_height = Inches(7.5)
+    blank_layout = prs.slide_layouts[6]
+
+    slides_data = [
+        ("Slide 1: Executive Workforce Summary", [
+            f"Active Employee Headcount: {active_hc:,} across {depts_cnt} departments",
+            f"Total Departures: {exits_cnt:,} employees (Voluntary Resignations: {vol_exits_cnt:,})",
+            f"Turnover Rate: {attrition_rate:.1f}% | Workforce Retention Rate: {retention_rate:.1f}%",
+            f"Organizational Net Staff Growth: +{net_growth:,} positions"
+        ]),
+        ("Slide 2: Recruitment SLA & Speed Optimization Bottlenecks", [
+            f"Average Hiring Turnaround Time (TAT): {avg_tat:.1f} Days",
+            f"Active Open Positions: {open_positions} roles across organizational functions",
+            f"Overall Vacancy Rate: {vacancy_rate:.1f}%",
+            "Key Bottleneck Area: Senior management & technical roles require SLA optimization to reduce time-to-fill below 45 days."
+        ]),
+        ("Slide 3: Flight Risk & AI Predictive Exit Analysis", [
+            f"High Exit Risk Staff Flagged: {high_risk_cnt} active employees (>60% risk score)",
+            f"Workforce Average Exit Probability: {avg_risk_score:.1f}%",
+            "Primary Risk Drivers: Mid-level staff tenure (1-2 years) & department manager report ratios.",
+            "Stay-Interview Target: Deploy targeted retention packages & stay interviews for flagged high-risk staff."
+        ]),
+        ("Slide 4: Strategic Departmental Benchmarking", [
+            f"Largest Department: {top_dept_name} ({max_dept_hc} active staff)",
+            "Voluntary Resignation Concentration: Programme & Strategic Operations departments require manager engagement reviews.",
+            "Gender Diversity Scorecard: Overall Female representation maintained across organizational tiers."
+        ]),
+        ("Slide 5: Strategic HR Roadmap & Executive Action Plan", [
+            "1. Targeted Stay Interviews: Immediate manager check-ins for AI-flagged high-risk personnel.",
+            "2. Sourcing Channel Optimization: Shift recruitment budget toward internal referrals and direct sourcing.",
+            "3. Managerial Span Coaching: Provide leadership coaching for managers with over 8 direct report lines."
+        ])
+    ]
+
+    for title, bullets in slides_data:
+        slide = prs.slides.add_slide(blank_layout)
+
+        header_box = slide.shapes.add_textbox(Inches(0.8), Inches(0.6), Inches(11.7), Inches(1.0))
+        tf = header_box.text_frame
+        tf.word_wrap = True
+        p = tf.paragraphs[0]
+        p.text = title
+        p.font.size = Pt(26)
+        p.font.bold = True
+        p.font.color.rgb = RGBColor(15, 23, 42)
+
+        content_box = slide.shapes.add_textbox(Inches(0.8), Inches(1.8), Inches(11.7), Inches(4.5))
+        ctf = content_box.text_frame
+        ctf.word_wrap = True
+        for idx, bullet_text in enumerate(bullets):
+            cp = ctf.paragraphs[0] if idx == 0 else ctf.add_paragraph()
+            cp.text = "• " + bullet_text
+            cp.font.size = Pt(18)
+            cp.font.color.rgb = RGBColor(30, 41, 59)
+            cp.space_after = Pt(14)
+
+        footer_box = slide.shapes.add_textbox(Inches(0.8), Inches(6.6), Inches(11.7), Inches(0.5))
+        ftf = footer_box.text_frame
+        fp = ftf.paragraphs[0]
+        fp.text = "Prepared by Ashish | Peepul HR Analytics Intelligence Platform"
+        fp.font.size = Pt(11)
+        fp.font.color.rgb = RGBColor(100, 116, 139)
+
+    buffer = io.BytesIO()
+    prs.save(buffer)
+    buffer.seek(0)
+    return buffer.getvalue()
+
 def get_logo_base64(logo_path="202204_Peepul Logo (1).png"):
     if not os.path.exists(logo_path):
         logo_path = r"c:\Users\Peepul\OneDrive - Absolute Return For Kids\HR Dashboard Files\202204_Peepul Logo (1).png"
@@ -765,6 +976,24 @@ with tab1:
             </div>
         </div>
         """, unsafe_allow_html=True)
+
+        st.markdown("<br>", unsafe_allow_html=True)
+        pdf_board_bytes = generate_board_brief_pdf(
+            active_hc=active_hc,
+            exits_cnt=exits_cnt,
+            attrition_rate=attrition_rate,
+            retention_rate=retention_rate,
+            avg_tat=avg_tat,
+            hr_health_index=hr_health_index,
+            vol_exits_cnt=vol_exits_cnt,
+            vol_pct=vol_pct
+        )
+        st.download_button(
+            label="📄 Download Executive Board Summary (.pdf)",
+            data=pdf_board_bytes,
+            file_name="Peepul_Executive_Board_Summary.pdf",
+            mime="application/pdf"
+        )
 
     st.markdown("---")
     
@@ -1735,7 +1964,33 @@ Generated: {datetime.now().strftime('%d %B %Y')}
 
     st.markdown("---")
     st.subheader("📽️ Automated 5-Slide C-Suite Presentation Deck Generator")
-    st.markdown("Generate a fully structured 5-slide C-suite executive briefing deck (.md) optimized for Marp, Slides, or Markdown viewers.")
+    st.markdown("Generate and download a fully structured 5-slide C-suite executive briefing deck in **PowerPoint (.pptx)** or **Markdown (.md)** format.")
+
+    pptx_deck_bytes = generate_csuite_pptx(
+        active_hc=active_hc,
+        depts_cnt=len(selected_depts),
+        exits_cnt=exits_cnt,
+        vol_exits_cnt=vol_exits_cnt,
+        attrition_rate=attrition_rate,
+        retention_rate=retention_rate,
+        net_growth=net_growth,
+        avg_tat=avg_tat,
+        open_positions=open_positions,
+        vacancy_rate=vacancy_rate,
+        high_risk_cnt=high_risk_cnt,
+        avg_risk_score=avg_risk_score,
+        top_dept_name=fm_df['Department'].iloc[0] if len(fm_df) > 0 else "Programme",
+        max_dept_hc=int(fm_df['Active Headcount'].max()) if len(fm_df) > 0 else 0
+    )
+
+    col_ppt1, col_ppt2 = st.columns(2)
+    with col_ppt1:
+        st.download_button(
+            label="📊 Download 5-Slide C-Suite Deck (.pptx)",
+            data=pptx_deck_bytes,
+            file_name="Peepul_CSuite_Presentation_Deck.pptx",
+            mime="application/vnd.openxmlformats-officedocument.presentationml.presentation"
+        )
 
     slide_deck_content = f"""# Slide 1: Executive Workforce Summary
 ## Peepul HR Intelligence Briefing — {datetime.now().strftime('%B %Y')}
@@ -1778,12 +2033,13 @@ Generated: {datetime.now().strftime('%d %B %Y')}
 *Prepared by Ashish | Peepul HR Analytics Dashboard*
 """
 
-    st.download_button(
-        label="📥 Download 5-Slide C-Suite Deck (.md)",
-        data=slide_deck_content.encode('utf-8'),
-        file_name="Peepul_CSuite_Presentation_Deck.md",
-        mime="text/markdown"
-    )
+    with col_ppt2:
+        st.download_button(
+            label="📄 Download 5-Slide C-Suite Deck (.md)",
+            data=slide_deck_content.encode('utf-8'),
+            file_name="Peepul_CSuite_Presentation_Deck.md",
+            mime="text/markdown"
+        )
 
 st.markdown("---")
 st.markdown("""
