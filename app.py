@@ -234,19 +234,64 @@ def load_and_process_data():
 
     # Safely convert numeric columns
     df_roles_closed['No of positions'] = pd.to_numeric(df_roles_closed['No of positions'], errors='coerce').fillna(1).astype(int)
-    # Standardize Team names in df_hiring so they align cleanly with df_emp and df_exit
-    hiring_team_map = {
-        'DIB (LiftEd)': 'LiftEd',
+    # Master Team Standardization Map (Clubs similar & variant team names across all datasets)
+    master_team_map = {
+        # Academic Excellence / CAE
+        'CAE': 'Center of Academic Excellence (CAE)',
+        'Center of Academic Excellence': 'Center of Academic Excellence (CAE)',
+        
+        # School Variants
+        'Amar Colony school': 'Amar Colony School',
+        'Jeewan Nagar School': 'Jeevan Nagar School',
+        'Exemplar School': 'Exemplar Schools',
+        'Lajpat Nagar, Amar Colony, Jeevan Nagar schools': 'Exemplar Schools',
+        
+        # CM Rise Variants
+        'CMRS': 'CM Rise Schools',
+        'CM Rise Schools (PMU)': 'CM Rise Schools',
+        'PMU MP': 'CM Rise Schools',
+        'CM Rise TPD (PMU)': 'CM Rise TPD',
+        'MP TPD': 'CM Rise TPD',
         'TPD MP': 'CM Rise TPD',
+        
+        # LiftEd / DIB Variants
+        'DIB (LiftEd)': 'LiftEd',
+        'LiftEd (PMU)': 'LiftEd',
+        
+        # PM SHRI Variants
         'PM Shri': 'PM SHRI',
-        'PMU Delhi': 'Delhi Scale Programme (PMU)',
+        'PM Shri Schools': 'PM SHRI',
+        'PM SHRI (PMU)': 'PM SHRI',
+        
+        # Delhi Scale / PMU Delhi Variants
         'Delhi Programmes': 'Delhi Scale Programme',
-        'Central - MEL': 'Monitoring, Evaluation and Learning',
-        'Digital Literacy (MP)': 'Digital Literacy, MP',
-        'CAE': 'Center of Academic Excellence',
-        'Central - Gender': 'Central'
+        'PMU Delhi': 'Delhi Scale Programme',
+        'Delhi Scale Programme (MTPD)': 'Delhi Scale Programme',
+        'Delhi Scale Programme (PMU)': 'Delhi Scale Programme',
+        'MCD Scale (MTPD)': 'Delhi Scale Programme',
+        
+        # Digital Literacy / Education Variants
+        'Digital Literacy, MP': 'Digital Literacy (MP)',
+        'Digital Education (MP)': 'Digital Literacy (MP)',
+        'Digital Literacy, Delhi': 'Digital Literacy (Delhi)',
+        'Digital Literacy, Delhi + Amar Colony School': 'Digital Literacy (Delhi)',
+        
+        # Central Sub-teams & Department standardizations
+        'Central Team': 'Central',
+        'Central - Gender': 'Gender',
+        'Central - Admin': 'Administration',
+        'Finance and Administration': 'Administration & Finance',
+        'Central - Fundraising': 'Fundraising',
+        'Central - HR': 'Human Resources',
+        'HR': 'Human Resources',
+        'Central - MEL': 'Monitoring, Evaluation & Learning (MEL)',
+        'Monitoring, Evaluation and Learning': 'Monitoring, Evaluation & Learning (MEL)'
     }
-    df_hiring['Team'] = df_hiring['Team'].replace(hiring_team_map)
+
+    for df in [df_hiring, df_roles_closed, df_emp, df_exit]:
+        if 'Team' in df.columns:
+            df['Team'] = df['Team'].astype(str).str.strip().replace(master_team_map)
+
     df_hiring['No of positions'] = pd.to_numeric(df_hiring['No of positions'], errors='coerce').fillna(1).astype(int)
     df_hiring['Back Fills'] = pd.to_numeric(df_hiring['Back Fills'], errors='coerce').fillna(0).astype(int)
     df_hiring['New Hires'] = pd.to_numeric(df_hiring['New Hires'], errors='coerce').fillna(0).astype(int)
