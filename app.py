@@ -488,7 +488,7 @@ if logo_b64:
         <img src="{logo_b64}" style="max-height: 60px; width: auto; object-fit: contain;">
         <div>
             <h1 style="margin: 0; font-size: 28px; font-weight: 800; color: #0F172A; letter-spacing: -0.5px;">Peepul Executive HR Analytics Dashboard</h1>
-            <div style="font-size: 13px; font-weight: 600; color: #475569;">Workforce Dynamics, Recruitment Velocity & Attrition Intelligence</div>
+            <div style="font-size: 13px; font-weight: 600; color: #475569;">Simple & Clear HR Analytics: Staff Movement, Hiring Speed & Retention Intelligence</div>
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -497,7 +497,7 @@ else:
     <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 10px;">
         <div>
             <h1 style="margin: 0; font-size: 30px; font-weight: 800; color: #0F172A; letter-spacing: -0.5px;">Peepul Executive HR Analytics Dashboard</h1>
-            <div style="font-size: 13px; font-weight: 600; color: #475569;">Workforce Dynamics, Recruitment Velocity & Attrition Intelligence</div>
+            <div style="font-size: 13px; font-weight: 600; color: #475569;">Simple & Clear HR Analytics: Staff Movement, Hiring Speed & Retention Intelligence</div>
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -505,12 +505,12 @@ else:
 st.markdown(f"**Filter Scope:** `{start_date.strftime('%d %b %Y')}` to `{end_date.strftime('%d %b %Y')}` | **Departments:** `{len(selected_depts)} Selected` | **Teams:** `{len(selected_teams)} Selected`")
 
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
-    "📌 Executive Overview", 
-    "🚀 Recruitment Speed & ROI", 
-    "👥 Demographics & Manager Span", 
-    "🚪 Exit & Attrition Deep-Dive",
-    "📊 Functional & Managerial (Tab FM)",
-    "📋 Raw Data & CSV Export"
+    "📌 Executive Summary", 
+    "🚀 Hiring Speed & Source ROI", 
+    "👥 Team Sizes & Diversity", 
+    "🚪 Exit Reasons & Service Length",
+    "📊 Departmental Matrix (Tab FM)",
+    "📋 Data Tables & Export"
 ])
 
 # ------------------------------------------------------------------------------
@@ -528,91 +528,95 @@ with tab1:
     net_growth = active_hc - exits_cnt
     
     with col1:
-        st.markdown(f'<div class="metric-card"><div class="metric-title">Active Headcount</div><div class="metric-value">{active_hc:,}</div><div class="metric-subtitle">Total Active Workforce</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card"><div class="metric-title">Active Staff</div><div class="metric-value">{active_hc:,}</div><div class="metric-subtitle">Currently Employed</div></div>', unsafe_allow_html=True)
     with col2:
-        st.markdown(f'<div class="metric-card-alert"><div class="metric-title">Exits in Window</div><div class="metric-value">{exits_cnt:,}</div><div class="metric-subtitle" style="color:#FF007F;">Leavers</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card-alert"><div class="metric-title">Staff Departures</div><div class="metric-value">{exits_cnt:,}</div><div class="metric-subtitle" style="color:#FF007F;">Left Organization</div></div>', unsafe_allow_html=True)
     with col3:
-        st.markdown(f'<div class="metric-card"><div class="metric-title">Dynamic Attrition %</div><div class="metric-value">{attrition_rate:.1f}%</div><div class="metric-subtitle">Retention: {retention_rate:.1f}%</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card"><div class="metric-title">Turnover Rate %</div><div class="metric-value">{attrition_rate:.1f}%</div><div class="metric-subtitle">Staff Retained: {retention_rate:.1f}%</div></div>', unsafe_allow_html=True)
     with col4:
-        st.markdown(f'<div class="metric-card"><div class="metric-title">Avg Hiring Speed</div><div class="metric-value">{avg_tat:.1f} Days</div><div class="metric-subtitle">Turnaround Time</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card"><div class="metric-title">Avg Hiring Speed</div><div class="metric-value">{avg_tat:.1f} Days</div><div class="metric-subtitle">Days to Fill Role</div></div>', unsafe_allow_html=True)
     with col5:
-        st.markdown(f'<div class="metric-card"><div class="metric-title">Net Expansion</div><div class="metric-value">+{net_growth:,}</div><div class="metric-subtitle">Active vs Exits</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card"><div class="metric-title">Net Staff Growth</div><div class="metric-value">+{net_growth:,}</div><div class="metric-subtitle">Active vs Departures</div></div>', unsafe_allow_html=True)
 
     st.markdown("---")
     
-    # 🤖 AI EXECUTIVE BRIEF CONTAINER
-    with st.expander("🤖 Senior HR Analyst AI Executive Brief (Qwen 3.5 Full Dashboard Model)", expanded=True):
+    # 🤖 QWEN AI SECTION ANALYSIS: TAB 1
+    with st.expander("🤖 Qwen AI Section Analysis: Executive Workforce & Retention Overview", expanded=True):
         st.markdown("""
-        #### 1. Comprehensive Workforce & Turnover Mechanics
-        Synthesizing the complete **276 Active Employee directory** alongside **53 total employee departures**, organizational turnover stands at **~17.5%**, yielding an overall **retention rate of 82.5%**. However, turnover mechanics show that **38 out of 53 departures (~71.7%) were Regretted Exits** (voluntary resignations driven by better external opportunities, higher compensation, and personal relocation), whereas **15 departures (~28.3%) were Non-Regretted Exits** (probation non-confirmation, contract end, performance separations). Talent loss is heavily concentrated among confirmed core staff in the 1–2 year tenure window.
-
-        #### 2. Recruitment Velocity & Sourcing Channel ROI
-        Across **56 closed roles** and **44 active open positions (13 Backfills [29.5%] vs. 31 New Hires [70.5%], ratio 1:2.4)**:
-        - ⚡ **High-Velocity Channels**: **Alumni / Re-hires (15 days avg TAT)**, **Partner Portals (44 days avg TAT)**, and **Employee Referrals (48 days avg TAT)** deliver the highest speed-to-hire and cost efficiency.
-        - 🐢 **High-TAT Channels**: **LinkedIn (106 days avg TAT)** and **Placement Agencies (176 days avg TAT)** incur significant turnaround delays, creating prolonged open vacancy gaps.
-
-        #### 3. Manager Span & Retention Action Plan
-        - 🎯 **Channel Re-alignment**: Reallocate sourcing budgets away from slow agency partners (Placements/LinkedIn at 106–176 days) toward high-velocity channels (Referrals/Direct Sourcing at 48–78 days).
-        - 🛡️ **Proactive Retention Protocols**: Address the 71.7% regretted exit rate by conducting 12-month stay interviews and structured career pathing for mid-tenure talent.
-        - 👥 **Manager Span Coaching**: Focus leadership support on high-span teams (>5 direct reports) where voluntary turnover risks are elevated.
+        - **Active Workforce & Turnover**: The organization currently employs **276 active staff** and has recorded **53 total employee departures**. Overall staff turnover stands at **~17.5%**, giving a solid **retention rate of 82.5%**.
+        - **Why Staff Left**: Out of 53 departures, **38 employees (71.7%) left voluntarily** (seeking better salary, career growth, or personal reasons). Only **15 departures (28.3%) were involuntary** (contract end, probation, or performance).
+        - **Critical Service Window**: Voluntary resignations are highest among employees who have been with the organization for **1 to 2 years**.
+        - **Action Plan**: Focus retention efforts on mid-tenure staff (1–2 years service) by introducing 12-month career progression reviews and stay interviews.
         """)
 
     st.markdown("---")
     c1, c2 = st.columns([2, 1])
     
     with c1:
-        st.subheader("📈 Monthly Headcount Movement Trend (Joiners vs Exits)")
+        st.subheader("📈 Monthly Staff Movement (New Hires vs. Departures)")
         emp_joins = filtered_emp.groupby(filtered_emp['Date of joining'].dt.to_period('M')).size()
         exit_dates = filtered_exit.groupby(filtered_exit['Last working day'].dt.to_period('M')).size()
         
-        all_periods = pd.period_range(start="2024-01", end="2026-03", freq='M')
+        # Calculate dynamic max period so ALL exits (up to August 2026) are displayed accurately
+        max_emp_d = filtered_emp['Date of joining'].dropna().max() if len(filtered_emp) > 0 else pd.Timestamp('2026-08-01')
+        max_ext_d = filtered_exit['Last working day'].dropna().max() if len(filtered_exit) > 0 else pd.Timestamp('2026-08-01')
+        end_period = max(max_emp_d, max_ext_d).to_period('M') if (pd.notna(max_emp_d) and pd.notna(max_ext_d)) else pd.Period('2026-08', freq='M')
+        
+        all_periods = pd.period_range(start="2024-01", end=end_period, freq='M')
         trend_df = pd.DataFrame({'Period': all_periods.astype(str)}).set_index('Period')
         trend_df['Joiners'] = emp_joins.reindex(all_periods, fill_value=0).values
         trend_df['Exits'] = exit_dates.reindex(all_periods, fill_value=0).values
         trend_df['Net Change'] = trend_df['Joiners'] - trend_df['Exits']
-        trend_df['Active Headcount'] = trend_df['Net Change'].cumsum() + 200
+        
+        cum_net = trend_df['Net Change'].cumsum()
+        offset = active_hc - (cum_net.iloc[-1] if len(cum_net) > 0 else 0)
+        trend_df['Active Headcount'] = cum_net + offset
         trend_df = trend_df.reset_index()
 
         fig_combo = go.Figure()
-        fig_combo.add_trace(go.Bar(x=trend_df['Period'], y=trend_df['Joiners'], name='Joiners (New Hires)', marker_color='#00F2FE'))
-        fig_combo.add_trace(go.Bar(x=trend_df['Period'], y=trend_df['Exits'], name='Exits (Leavers)', marker_color='#FF007F'))
-        fig_combo.add_trace(go.Scatter(x=trend_df['Period'], y=trend_df['Active Headcount'], name='Active Headcount Line', yaxis='y2', line=dict(color='#0F172A', width=3)))
+        fig_combo.add_trace(go.Bar(x=trend_df['Period'], y=trend_df['Joiners'], name='New Hires (Joiners)', marker_color='#00F2FE'))
+        fig_combo.add_trace(go.Bar(x=trend_df['Period'], y=trend_df['Exits'], name='Staff Left (Exits)', marker_color='#FF007F'))
+        fig_combo.add_trace(go.Scatter(x=trend_df['Period'], y=trend_df['Active Headcount'], name='Active Staff Line', yaxis='y2', line=dict(color='#0F172A', width=3)))
         
         fig_combo.update_layout(
             barmode='group',
             legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-            yaxis=dict(title="Monthly Joiners / Exits Count"),
-            yaxis2=dict(title="Cumulative Active Headcount", overlaying='y', side='right')
+            yaxis=dict(title="Monthly Count"),
+            yaxis2=dict(title="Active Staff Total", overlaying='y', side='right')
         )
-        fig_combo = apply_plotly_theme(fig_combo, "Monthly Headcount Movement & Cumulative Trajectory")
+        fig_combo = apply_plotly_theme(fig_combo, "Monthly Staff Movement & Cumulative Trend (2024 - 2026)")
         st.plotly_chart(fig_combo, use_container_width=True)
         
     with c2:
-        st.subheader("⚖️ Regretted vs. Non-Regretted Exits")
+        st.subheader("⚖️ Voluntary vs. Involuntary Departures")
         if len(filtered_exit) > 0:
             reg_df = filtered_exit['Exit Category'].value_counts().reset_index()
             reg_df.columns = ['Category', 'Count']
+            reg_df['Category'] = reg_df['Category'].replace({
+                'Regretted Exit': 'Voluntary Exits (Resigned)',
+                'Non-Regretted Exit': 'Involuntary Exits (Contract / Trial)'
+            })
             fig_reg = px.pie(reg_df, values='Count', names='Category', hole=0.5,
                              color_discrete_sequence=['#FF007F', '#7B2CBF'])
-            fig_reg = apply_plotly_theme(fig_reg, "Voluntary vs Involuntary Exit Breakdown")
+            fig_reg = apply_plotly_theme(fig_reg, "Staff Departure Categories")
             st.plotly_chart(fig_reg, use_container_width=True)
         else:
             st.info("No exits recorded in selected date window.")
 
     # DETAILED REGRETTED AND NON-REGRETTED EXITS DATA TABLES BELOW CHART
     st.markdown("---")
-    st.subheader("📄 Detailed Employee Exit Records by Category")
+    st.subheader("📄 Employee Departure Records by Category")
     
     col_reg, col_nonreg = st.columns(2)
     with col_reg:
-        st.markdown("#### 🔴 Regretted Exits (Voluntary Turnover)")
+        st.markdown("#### 🔴 Voluntary Exits (High-Value Staff Resignations)")
         reg_exits_df = filtered_exit[filtered_exit['Exit Category'] == 'Regretted Exit'][
             ['Full Name', 'Department', 'Team', 'Designation', 'Reason for Leaving', 'Last working day', 'Tenure']
         ]
         st.dataframe(reg_exits_df, use_container_width=True)
         
     with col_nonreg:
-        st.markdown("#### 🟣 Non-Regretted Exits (Involuntary / Contract Ended / Probation)")
+        st.markdown("#### 🟣 Involuntary Exits (Contract Ended / Probation / Performance)")
         nonreg_exits_df = filtered_exit[filtered_exit['Exit Category'] == 'Non-Regretted Exit'][
             ['Full Name', 'Department', 'Team', 'Designation', 'Reason for Leaving', 'Last working day', 'Tenure']
         ]
@@ -630,19 +634,31 @@ with tab2:
     vacancy_rate = (open_positions / (active_hc + open_positions) * 100) if (active_hc + open_positions) > 0 else 0
     
     with m1:
-        st.markdown(f'<div class="metric-card"><div class="metric-title">Roles Closed</div><div class="metric-value">{roles_closed}</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card"><div class="metric-title">Roles Closed</div><div class="metric-value">{roles_closed}</div><div class="metric-subtitle">Completed Hiring</div></div>', unsafe_allow_html=True)
     with m2:
-        st.markdown(f'<div class="metric-card"><div class="metric-title">Closed Positions</div><div class="metric-value">{positions_closed}</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card"><div class="metric-title">Positions Filled</div><div class="metric-value">{positions_closed}</div><div class="metric-subtitle">Hired Candidates</div></div>', unsafe_allow_html=True)
     with m3:
-        st.markdown(f'<div class="metric-card"><div class="metric-title">Active Open Roles</div><div class="metric-value">{open_roles}</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card"><div class="metric-title">Active Open Roles</div><div class="metric-value">{open_roles}</div><div class="metric-subtitle">Current Requisitions</div></div>', unsafe_allow_html=True)
     with m4:
-        st.markdown(f'<div class="metric-card"><div class="metric-title">Open Positions</div><div class="metric-value">{open_positions}</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card"><div class="metric-title">Open Positions</div><div class="metric-value">{open_positions}</div><div class="metric-subtitle">Total Vacancies</div></div>', unsafe_allow_html=True)
     with m5:
-        st.markdown(f'<div class="metric-card"><div class="metric-title">Vacancy Rate %</div><div class="metric-value">{vacancy_rate:.1f}%</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card"><div class="metric-title">Vacancy Rate %</div><div class="metric-value">{vacancy_rate:.1f}%</div><div class="metric-subtitle">Unfilled Roles Ratio</div></div>', unsafe_allow_html=True)
         
+    st.markdown("---")
+    
+    # 🤖 QWEN AI SECTION ANALYSIS: TAB 2
+    with st.expander("🤖 Qwen AI Section Analysis: Hiring Speed & Channel Performance", expanded=True):
+        st.markdown("""
+        - **Fastest Sourcing Channels**: **Alumni / Re-hires (15 days average)**, **Partner Portals (44 days average)**, and **Employee Referrals (48 days average)** deliver the fastest hiring turnaround with low cost.
+        - **Slower Sourcing Channels**: **LinkedIn (106 days average)** and **Placement Agencies (176 days average)** experience long turnaround delays, keeping critical vacancies open longer.
+        - **Open Positions Mix**: Out of 44 open positions, **13 are Backfills (29.5%)** to replace departed staff and **31 are New Growth Hires (70.5%)** for organization expansion (ratio of 1 Replacement : 2.4 New Hires).
+        - **Action Plan**: Shift sourcing focus toward Employee Referrals and Direct Sourcing to reduce time-to-fill and prevent top candidates from accepting rival offers during long recruitment cycles.
+        """)
+
+    st.markdown("---")
     r1, r2 = st.columns(2)
     with r1:
-        st.subheader("⏱️ Average Hiring Turnaround Time (TAT) by Source (All 9 Sources)")
+        st.subheader("⏱️ Average Hiring Speed (Days to Fill) by Channel")
         tat_source = df_roles_closed.groupby('Hiring Source').agg(
             Avg_TAT=('Turn Around Time (in Days)', 'mean'),
             Roles_Count=('Open Roles', 'count')
@@ -659,11 +675,11 @@ with tab2:
             color_discrete_sequence=['#7B2CBF']
         )
         fig_tat.update_traces(texttemplate='%{text} Days', textposition='outside')
-        fig_tat = apply_plotly_theme(fig_tat, "All 9 Hiring Sources: Average Speed (Days)")
+        fig_tat = apply_plotly_theme(fig_tat, "All Sourcing Channels: Average Speed (Days to Fill)")
         st.plotly_chart(fig_tat, use_container_width=True)
         
     with r2:
-        st.subheader("🔄 Open Positions: Backfill vs. New Hire Ratio")
+        st.subheader("🔄 Open Positions: Replacement (Backfill) vs. New Roles")
         hiring_df_src = filtered_hiring if len(filtered_hiring) > 0 else df_hiring
         
         bf_sum = int(hiring_df_src['Back Fills'].sum())
@@ -675,22 +691,23 @@ with tab2:
         
         k1, k2, k3 = st.columns(3)
         with k1:
-            st.markdown(f'<div class="metric-card"><div class="metric-title">Backfills</div><div class="metric-value">{bf_sum}</div><div class="metric-subtitle" style="color:#FF007F;">{bf_pct:.1f}% of Open</div></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="metric-card"><div class="metric-title">Replacements (Backfills)</div><div class="metric-value">{bf_sum}</div><div class="metric-subtitle" style="color:#FF007F;">{bf_pct:.1f}% of Open</div></div>', unsafe_allow_html=True)
         with k2:
-            st.markdown(f'<div class="metric-card"><div class="metric-title">New Hires</div><div class="metric-value">{nh_sum}</div><div class="metric-subtitle" style="color:#00F2FE;">{nh_pct:.1f}% of Open</div></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="metric-card"><div class="metric-title">New Growth Hires</div><div class="metric-value">{nh_sum}</div><div class="metric-subtitle" style="color:#00F2FE;">{nh_pct:.1f}% of Open</div></div>', unsafe_allow_html=True)
         with k3:
-            st.markdown(f'<div class="metric-card"><div class="metric-title">Backfill : New Hire</div><div class="metric-value">{ratio_str}</div><div class="metric-subtitle">Ratio Breakdown</div></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="metric-card"><div class="metric-title">Replacement : New Hire</div><div class="metric-value">{ratio_str}</div><div class="metric-subtitle">Ratio Ratio</div></div>', unsafe_allow_html=True)
             
         hiring_type = hiring_df_src.groupby('Team')[['Back Fills', 'New Hires']].sum().reset_index()
+        hiring_type.columns = ['Team', 'Replacements (Backfills)', 'New Growth Hires']
         fig_hiring = px.bar(
             hiring_type, 
             x='Team', 
-            y=['Back Fills', 'New Hires'],
+            y=['Replacements (Backfills)', 'New Growth Hires'],
             barmode='group',
             color_discrete_sequence=['#FF007F', '#00F2FE'],
             text_auto=True
         )
-        fig_hiring = apply_plotly_theme(fig_hiring, "Backfills vs New Hires Positions by Team")
+        fig_hiring = apply_plotly_theme(fig_hiring, "Replacements vs New Growth Hires by Team")
         st.plotly_chart(fig_hiring, use_container_width=True)
 
 # ------------------------------------------------------------------------------
@@ -707,19 +724,31 @@ with tab3:
     longest_tenure_val = filtered_emp.groupby('Team')['Tenure Years'].mean().max() if len(filtered_emp) > 0 else 0
     
     with d1:
-        st.markdown(f'<div class="metric-card"><div class="metric-title">Avg Active Tenure</div><div class="metric-value">{avg_tenure:.1f} Yrs</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card"><div class="metric-title">Avg Employee Tenure</div><div class="metric-value">{avg_tenure:.1f} Yrs</div><div class="metric-subtitle">Average Length of Service</div></div>', unsafe_allow_html=True)
     with d2:
-        st.markdown(f'<div class="metric-card"><div class="metric-title">Active Managers</div><div class="metric-value">{managers_cnt}</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card"><div class="metric-title">Active Team Managers</div><div class="metric-value">{managers_cnt}</div><div class="metric-subtitle">People Leaders</div></div>', unsafe_allow_html=True)
     with d3:
-        st.markdown(f'<div class="metric-card"><div class="metric-title">Avg Span of Control</div><div class="metric-value">{span_control:.1f}</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card"><div class="metric-title">Avg Team Size / Manager</div><div class="metric-value">{span_control:.1f}</div><div class="metric-subtitle">Direct Reports / Manager</div></div>', unsafe_allow_html=True)
     with d4:
-        st.markdown(f'<div class="metric-card"><div class="metric-title">Active Female %</div><div class="metric-value">{female_pct:.1f}%</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card"><div class="metric-title">Female Staff %</div><div class="metric-value">{female_pct:.1f}%</div><div class="metric-subtitle">Active Gender Mix</div></div>', unsafe_allow_html=True)
     with d5:
-        st.markdown(f'<div class="metric-card"><div class="metric-title">Longest Serving Team</div><div class="metric-value">{longest_tenure_val:.1f} Yrs</div><div class="metric-subtitle">{longest_team}</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card"><div class="metric-title">Most Experienced Team</div><div class="metric-value">{longest_tenure_val:.1f} Yrs</div><div class="metric-subtitle">{longest_team}</div></div>', unsafe_allow_html=True)
 
+    st.markdown("---")
+    
+    # 🤖 QWEN AI SECTION ANALYSIS: TAB 3
+    with st.expander("🤖 Qwen AI Section Analysis: Manager Team Sizes & Gender Diversity", expanded=True):
+        st.markdown("""
+        - **Manager Team Sizes**: The active workforce spans **57 team managers**, with an **average team size of 4.8 direct reports** per manager.
+        - **Manager Workload & Turnover**: Managers leading larger teams (>5 direct reports) experience higher staff departures, indicating that manager overload directly impacts staff retention.
+        - **Gender Diversity Balance**: Active staff consists of **56.5% female employees**, while staff departures show a **58.5% female proportion**, reflecting balanced gender representation across active and exiting cohorts.
+        - **Action Plan**: Provide leadership support and coaching to managers leading large teams to reduce turnover risks under high-volume workloads.
+        """)
+
+    st.markdown("---")
     g1, g2 = st.columns(2)
     with g1:
-        st.subheader("👔 Manager Span of Control vs. Exits")
+        st.subheader("👔 Manager Team Size vs. Staff Departures")
         mgr_emp = filtered_emp.groupby('Reporting To (Manager Name)').size().reset_index(name='Team Size')
         mgr_exit = filtered_exit.groupby('Reporting To (Manager Name)').size().reset_index(name='Exits')
         mgr_df = pd.merge(mgr_emp, mgr_exit, on='Reporting To (Manager Name)', how='left').fillna(0)
@@ -736,19 +765,19 @@ with tab3:
             text='Exits',
             color_continuous_scale='Blugrn'
         )
-        fig_mgr.update_traces(texttemplate='%{text} Exits', textposition='outside')
-        fig_mgr = apply_plotly_theme(fig_mgr, "Top Managers by Exits Count (Color = Team Size)")
+        fig_mgr.update_traces(texttemplate='%{text} Departures', textposition='outside')
+        fig_mgr = apply_plotly_theme(fig_mgr, "Top Managers by Staff Departures (Color = Team Size)")
         st.plotly_chart(fig_mgr, use_container_width=True)
         
-        with st.expander("🔍 View Complete Manager Span & Turnover Table"):
+        with st.expander("🔍 View Complete Manager Team Size & Turnover Table"):
             st.dataframe(mgr_df.rename(columns={'Reporting To (Manager Name)': 'Manager Name'}), use_container_width=True)
 
     with g2:
-        st.subheader("👩‍💼 Gender Parity: Active vs. Exits")
+        st.subheader("👩‍💼 Gender Balance: Active Staff vs. Departures")
         emp_g = filtered_emp['Gender'].value_counts(normalize=True).reset_index()
-        emp_g['Group'] = 'Active Workforce'
+        emp_g['Group'] = 'Active Staff'
         exit_g = filtered_exit['Gender'].value_counts(normalize=True).reset_index()
-        exit_g['Group'] = 'Exited Workforce'
+        exit_g['Group'] = 'Departed Staff'
         g_comp = pd.concat([emp_g, exit_g])
         g_comp.columns = ['Gender', 'Proportion', 'Group']
         g_comp['Proportion'] = (g_comp['Proportion'] * 100).round(1)
@@ -770,63 +799,74 @@ with tab3:
 # TAB 4: EXIT & ATTRITION DEEP-DIVE
 # ------------------------------------------------------------------------------
 with tab4:
-    role_exit_summary = filtered_exit.groupby('Role Level').size().reset_index(name='Exits Count')
+    role_exit_summary = filtered_exit.groupby('Role Level').size().reset_index(name='Departures Count')
     role_emp_summary = filtered_emp.groupby('Role Level').size().reset_index(name='Active Count')
     role_att = pd.merge(role_emp_summary, role_exit_summary, on='Role Level', how='outer').fillna(0)
-    role_att['Attrition Rate %'] = (role_att['Exits Count'] / (role_att['Active Count'] + role_att['Exits Count']) * 100).round(1)
-    role_att = role_att.sort_values(by='Attrition Rate %', ascending=False)
+    role_att['Turnover Rate %'] = (role_att['Departures Count'] / (role_att['Active Count'] + role_att['Departures Count']) * 100).round(1)
+    role_att = role_att.sort_values(by='Turnover Rate %', ascending=False)
     
     highest_att_role = role_att.iloc[0]['Role Level'] if len(role_att) > 0 else "N/A"
-    highest_att_val = role_att.iloc[0]['Attrition Rate %'] if len(role_att) > 0 else 0
+    highest_att_val = role_att.iloc[0]['Turnover Rate %'] if len(role_att) > 0 else 0
     lowest_att_role = role_att.iloc[-1]['Role Level'] if len(role_att) > 0 else "N/A"
-    lowest_att_val = role_att.iloc[-1]['Attrition Rate %'] if len(role_att) > 0 else 0
+    lowest_att_val = role_att.iloc[-1]['Turnover Rate %'] if len(role_att) > 0 else 0
     
     k1, k2, k3 = st.columns(3)
     with k1:
-        st.markdown(f'<div class="metric-card-alert"><div class="metric-title">Highest Attrition Role Level</div><div class="metric-value">{highest_att_val:.1f}%</div><div class="metric-subtitle">{highest_att_role}</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card-alert"><div class="metric-title">Highest Turnover Role Level</div><div class="metric-value">{highest_att_val:.1f}%</div><div class="metric-subtitle">{highest_att_role}</div></div>', unsafe_allow_html=True)
     with k2:
-        st.markdown(f'<div class="metric-card"><div class="metric-title">Lowest Attrition Role Level</div><div class="metric-value">{lowest_att_val:.1f}%</div><div class="metric-subtitle">{lowest_att_role}</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card"><div class="metric-title">Lowest Turnover Role Level</div><div class="metric-value">{lowest_att_val:.1f}%</div><div class="metric-subtitle">{lowest_att_role}</div></div>', unsafe_allow_html=True)
     with k3:
         early_exits = len(filtered_exit[filtered_exit['Tenure Band'].isin(['< 6 Months', '6-12 Months'])])
         early_pct = (early_exits / exits_cnt * 100) if exits_cnt > 0 else 0
-        st.markdown(f'<div class="metric-card-alert"><div class="metric-title">Early Attrition Rate (&lt;1 Year)</div><div class="metric-value">{early_pct:.1f}%</div><div class="metric-subtitle">{early_exits} Early Leavers</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card-alert"><div class="metric-title">First-Year Turnover (&lt;1 Year)</div><div class="metric-value">{early_pct:.1f}%</div><div class="metric-subtitle">{early_exits} Early Leavers</div></div>', unsafe_allow_html=True)
+
+    st.markdown("---")
+    
+    # 🤖 QWEN AI SECTION ANALYSIS: TAB 4
+    with st.expander("🤖 Qwen AI Section Analysis: Why Staff Leave & Early Turnover Risks", expanded=True):
+        st.markdown("""
+        - **Top Exit Reasons**: **Career Growth & Better Opportunities (58.5%)** and **Personal & Health Reasons (13.2%)** are the primary drivers of staff departures.
+        - **Length of Service Peak**: Turnover is highest during the **1 to 2-year service window** (21 departures), followed by the **6 to 12-month window** (13 departures).
+        - **First-Year Risk**: **24.5% of all staff departures occur within their first year of service**, highlighting the importance of initial 90-day onboarding check-ins.
+        - **Action Plan**: Conduct structured career path discussions at month 12 to retain mid-tenure talent, and strengthen onboarding support to lower first-year departures.
+        """)
 
     st.markdown("---")
     x1, x2 = st.columns(2)
     with x1:
-        st.subheader("🎯 Top Cleaned Reasons for Leaving")
+        st.subheader("🎯 Top Reasons Why Employees Left")
         if len(filtered_exit) > 0:
             reasons = filtered_exit['Cleaned Reason'].value_counts().reset_index()
-            reasons.columns = ['Cleaned Reason', 'Exits Count']
-            fig_reasons = px.bar(reasons, x='Exits Count', y='Cleaned Reason', orientation='h',
+            reasons.columns = ['Cleaned Reason', 'Departures Count']
+            fig_reasons = px.bar(reasons, x='Departures Count', y='Cleaned Reason', orientation='h',
                                  color_discrete_sequence=['#FF007F'])
-            fig_reasons = apply_plotly_theme(fig_reasons, "Standardized Exit Reasons")
+            fig_reasons = apply_plotly_theme(fig_reasons, "Primary Departure Reasons")
             st.plotly_chart(fig_reasons, use_container_width=True)
         else:
             st.info("No exits recorded in selected window.")
         
     with x2:
-        st.subheader("⏳ Tenure-Band Attrition Analysis")
+        st.subheader("⏳ Departures by Length of Service (Tenure)")
         if len(filtered_exit) > 0:
             tenure_exit = filtered_exit['Tenure Band'].value_counts().reset_index()
-            tenure_exit.columns = ['Tenure Band', 'Exits Count']
-            fig_tenure = px.bar(tenure_exit, x='Tenure Band', y='Exits Count',
+            tenure_exit.columns = ['Length of Service', 'Departures Count']
+            fig_tenure = px.bar(tenure_exit, x='Length of Service', y='Departures Count',
                                 color_discrete_sequence=['#7B2CBF'])
-            fig_tenure = apply_plotly_theme(fig_tenure, "Exits by Length of Service")
+            fig_tenure = apply_plotly_theme(fig_tenure, "Staff Left by Length of Service")
             st.plotly_chart(fig_tenure, use_container_width=True)
         else:
             st.info("No exits recorded in selected window.")
 
     st.markdown("---")
-    st.subheader("📊 Role Level Attrition Breakdown Table")
-    st.dataframe(role_att, use_container_width=True)
+    st.subheader("📊 Role Level Turnover Breakdown Table")
+    st.dataframe(role_att.rename(columns={'Departures Count': 'Departures Count', 'Active Count': 'Active Staff'}), use_container_width=True)
 
 # ------------------------------------------------------------------------------
 # TAB 5: FUNCTIONAL & MANAGERIAL (TAB FM)
 # ------------------------------------------------------------------------------
 with tab5:
     st.subheader("📊 Departmental & Team Functional Matrix (Tab FM)")
-    st.markdown("Detailed breakdown of active workforce headcount, exits, regretted turnover, and attrition metrics sliced by Department & Team.")
+    st.markdown("Detailed breakdown of active staff, departures, voluntary turnover, and turnover rates across all Departments & Teams.")
     
     # Active headcount by Dept & Team
     fm_emp = filtered_emp.groupby(['Department', 'Team']).size().reset_index(name='Active Headcount')
@@ -853,21 +893,37 @@ with tab5:
     # Display FM Metrics
     fm1, fm2, fm3, fm4 = st.columns(4)
     with fm1:
-        st.markdown(f'<div class="metric-card"><div class="metric-title">Active Departments</div><div class="metric-value">{fm_df["Department"].nunique()}</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card"><div class="metric-title">Active Departments</div><div class="metric-value">{fm_df["Department"].nunique()}</div><div class="metric-subtitle">Organizational Depts</div></div>', unsafe_allow_html=True)
     with fm2:
-        st.markdown(f'<div class="metric-card"><div class="metric-title">Active Teams</div><div class="metric-value">{fm_df["Team"].nunique()}</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card"><div class="metric-title">Active Teams</div><div class="metric-value">{fm_df["Team"].nunique()}</div><div class="metric-subtitle">Functional Teams</div></div>', unsafe_allow_html=True)
     with fm3:
-        st.markdown(f'<div class="metric-card"><div class="metric-title">Total Active Staff</div><div class="metric-value">{fm_df["Active Headcount"].sum():,}</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card"><div class="metric-title">Total Active Staff</div><div class="metric-value">{fm_df["Active Headcount"].sum():,}</div><div class="metric-subtitle">Current Workforce</div></div>', unsafe_allow_html=True)
     with fm4:
-        st.markdown(f'<div class="metric-card-alert"><div class="metric-title">Regretted Turnover</div><div class="metric-value">{fm_df["Regretted Exits"].sum()}</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card-alert"><div class="metric-title">Voluntary Exits</div><div class="metric-value">{fm_df["Regretted Exits"].sum()}</div><div class="metric-subtitle">High-Value Resignations</div></div>', unsafe_allow_html=True)
         
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.dataframe(fm_df, use_container_width=True)
+    st.markdown("---")
+    
+    # 🤖 QWEN AI SECTION ANALYSIS: TAB 5 FUNCTIONAL MATRIX
+    with st.expander("🤖 Qwen AI Section Analysis: Departmental Performance & Managerial Matrix", expanded=True):
+        st.markdown("""
+        - **Departmental Concentration**: The **Programme Department** holds the largest active staff count (182 employees) and registered the highest voluntary departures (26 resigned staff).
+        - **Manager Workload Monitoring**: Teams with larger direct-report ratios require ongoing manager support to avoid burnout and maintain high staff engagement.
+        - **Action Plan**: Utilize the Tab FM CSV download to monitor department retention targets and deploy HR support where voluntary turnover exceeds 15%.
+        """)
+
+    st.markdown("---")
+    st.dataframe(fm_df.rename(columns={
+        'Active Headcount': 'Active Staff',
+        'Total Exits': 'Total Departures',
+        'Regretted Exits': 'Voluntary Exits (Resigned)',
+        'Non-Regretted Exits': 'Involuntary Exits (Trial/Contract)',
+        'Attrition Rate %': 'Turnover Rate %'
+    }), use_container_width=True)
     csv_fm = fm_df.to_csv(index=False).encode('utf-8')
-    st.download_button("📥 Download Tab FM Functional Matrix CSV", csv_fm, "Tab_FM_Functional_Matrix.csv", "text/csv")
+    st.download_button("📥 Download Departmental Matrix CSV", csv_fm, "Tab_FM_Functional_Matrix.csv", "text/csv")
     
     st.markdown("---")
-    st.subheader("👔 Managerial Span of Control & Turnover Matrix (Tab FM)")
+    st.subheader("👔 Manager Team Size & Turnover Matrix (Tab FM)")
     mgr_emp = filtered_emp.groupby('Reporting To (Manager Name)').size().reset_index(name='Direct Reports')
     mgr_exit = filtered_exit.groupby('Reporting To (Manager Name)').size().reset_index(name='Exits under Manager')
     mgr_fm = pd.merge(mgr_emp, mgr_exit, on='Reporting To (Manager Name)', how='left').fillna(0)
@@ -877,17 +933,26 @@ with tab5:
     mgr_fm['Manager Turnover Rate %'] = (mgr_fm['Exits under Manager'] / mgr_fm['Direct Reports'] * 100).round(1)
     mgr_fm = mgr_fm.sort_values(by='Direct Reports', ascending=False)
     
-    st.dataframe(mgr_fm.rename(columns={'Reporting To (Manager Name)': 'Manager Name'}), use_container_width=True)
+    st.dataframe(mgr_fm.rename(columns={'Reporting To (Manager Name)': 'Manager Name', 'Direct Reports': 'Team Size', 'Exits under Manager': 'Staff Departures'}), use_container_width=True)
     csv_mgr_fm = mgr_fm.to_csv(index=False).encode('utf-8')
-    st.download_button("📥 Download Managerial Span (Tab FM) CSV", csv_mgr_fm, "Tab_FM_Managerial_Span.csv", "text/csv")
+    st.download_button("📥 Download Manager Team Size Matrix CSV", csv_mgr_fm, "Tab_FM_Managerial_Span.csv", "text/csv")
 
     # --------------------------------------------------------------------------
-    # TABFM ZERO-SHOT CLASSIFIER & REGRESSOR INTELLIGENCE
+    # TABFM PREDICTIVE AI INTELLIGENCE
     # --------------------------------------------------------------------------
     st.markdown("---")
-    st.subheader("🤖 TabFM Zero-Shot Predictive Intelligence (Classifier & Regressor)")
-    st.markdown("In-context tabular foundation model (TabFM) predicting active employee exit risk (Classifier) and open position turnaround speed (Regressor).")
+    st.subheader("🤖 AI Smart Forecast: Staff Exit Risk & Hiring Speed")
+    st.markdown("AI predictive analysis forecasting active employee exit probabilities and projected hiring turnaround times for open roles.")
     
+    # 🤖 QWEN AI SECTION ANALYSIS: TAB 5 PREDICTIVE AI
+    with st.expander("🤖 Qwen AI Section Analysis: Predictive Exit Risk & Hiring Speed Forecast", expanded=True):
+        st.markdown("""
+        - **Staff Flight Risk Detection**: The AI classifier evaluates tenure, role level, department historical turnover, and manager span to calculate individual exit probability scores.
+        - **Hiring Speed Forecasting**: The AI regressor projects expected days-to-fill for active open roles, highlighting requisitions predicted to take longer than 75 days as **High SLA Risk**.
+        - **Action Plan**: Schedule proactive stay-interviews for staff flagged in the **High Risk (>60%)** tier, and re-allocate hiring channels for positions forecasted with **High SLA Risk**.
+        """)
+
+    st.markdown("---")
     res_clf, hiring_pred = compute_tabfm_models(df_emp, df_exit, df_roles_closed, df_hiring)
     
     filt_res_clf = res_clf[res_clf['Department'].isin(selected_depts) & res_clf['Team'].isin(selected_teams)]
@@ -904,17 +969,17 @@ with tab5:
     
     p1, p2, p3, p4 = st.columns(4)
     with p1:
-        st.markdown(f'<div class="metric-card-alert"><div class="metric-title">🔴 High Exit Risk Staff</div><div class="metric-value">{high_risk_cnt}</div><div class="metric-subtitle">TabFM Classifier (&gt;60% Risk)</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card-alert"><div class="metric-title">🔴 High Exit Risk Staff</div><div class="metric-value">{high_risk_cnt}</div><div class="metric-subtitle">AI Forecast (&gt;60% Risk)</div></div>', unsafe_allow_html=True)
     with p2:
-        st.markdown(f'<div class="metric-card"><div class="metric-title">Avg Predictive Exit Risk</div><div class="metric-value">{avg_risk_score:.1f}%</div><div class="metric-subtitle">Workforce Probability</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card"><div class="metric-title">Avg Exit Risk Score</div><div class="metric-value">{avg_risk_score:.1f}%</div><div class="metric-subtitle">Workforce Probability</div></div>', unsafe_allow_html=True)
     with p3:
-        st.markdown(f'<div class="metric-card-alert"><div class="metric-title">🐢 High SLA Risk Roles</div><div class="metric-value">{high_sla_roles}</div><div class="metric-subtitle">TabFM Regressor (&gt;75 Days)</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card-alert"><div class="metric-title">🐢 High SLA Risk Roles</div><div class="metric-value">{high_sla_roles}</div><div class="metric-subtitle">AI Forecast (&gt;75 Days)</div></div>', unsafe_allow_html=True)
     with p4:
-        st.markdown(f'<div class="metric-card"><div class="metric-title">Avg Forecast TAT</div><div class="metric-value">{avg_pred_tat:.1f} Days</div><div class="metric-subtitle">Predicted Days to Fill</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card"><div class="metric-title">Avg Forecast Speed</div><div class="metric-value">{avg_pred_tat:.1f} Days</div><div class="metric-subtitle">Predicted Days to Fill</div></div>', unsafe_allow_html=True)
         
     col_clf_chart, col_reg_chart = st.columns(2)
     with col_clf_chart:
-        st.subheader("🎯 TabFM Classifier: Active Staff Exit Risk Bins")
+        st.subheader("🎯 Active Staff Exit Risk Distribution")
         risk_counts = filt_res_clf['Risk Category'].value_counts().reset_index()
         risk_counts.columns = ['Risk Category', 'Employee Count']
         fig_risk = px.pie(
@@ -925,11 +990,11 @@ with tab5:
             color='Risk Category',
             color_discrete_map={'🔴 High Risk': '#FF007F', '🟡 Medium Risk': '#FFB703', '🟢 Low Risk': '#00F2FE'}
         )
-        fig_risk = apply_plotly_theme(fig_risk, "Predicted Turnover Risk Distribution")
+        fig_risk = apply_plotly_theme(fig_risk, "Predicted Staff Turnover Risk Bins")
         st.plotly_chart(fig_risk, use_container_width=True)
         
     with col_reg_chart:
-        st.subheader("⏱️ TabFM Regressor: Open Position Turnaround SLA")
+        st.subheader("⏱️ Open Role Hiring Speed Forecast")
         tat_bins = filt_hir_pred['SLA Speed Status'].value_counts().reset_index()
         tat_bins.columns = ['SLA Status', 'Positions Count']
         fig_tat_pred = px.bar(
@@ -959,16 +1024,27 @@ with tab5:
 # TAB 6: RAW DATA & CSV EXPORT
 # ------------------------------------------------------------------------------
 with tab6:
+    st.subheader("📋 Active Employee & Departure Data Tables")
+    st.markdown("Download full filtered directory datasets for offline reporting and custom analysis.")
+    
+    # 🤖 QWEN AI SECTION ANALYSIS: TAB 6 DATA TABLES
+    with st.expander("🤖 Qwen AI Section Analysis: Dataset Integrity & Export Guidance", expanded=True):
+        st.markdown("""
+        - **Data Coverage**: Contains **276 Active Employees** and **53 Departed Employees** complete with standardized exit categories, cleaned reasons, and exact service tenure calculations.
+        - **Data Utility**: Export these filtered tables into Excel or CSV format for headcount audits, payroll reconciliation, and departmental reporting.
+        """)
+
+    st.markdown("---")
     st.subheader("📋 Active Employee Directory")
     st.dataframe(filtered_emp, use_container_width=True)
     csv_emp = filtered_emp.to_csv(index=False).encode('utf-8')
     st.download_button("📥 Download Active Employees CSV", csv_emp, "Active_Employees_Filtered.csv", "text/csv")
     
     st.markdown("---")
-    st.subheader("🚪 Exit Employee Records")
+    st.subheader("🚪 Departed Employee Records")
     st.dataframe(filtered_exit, use_container_width=True)
     csv_exit = filtered_exit.to_csv(index=False).encode('utf-8')
-    st.download_button("📥 Download Exit Employees CSV", csv_exit, "Exit_Employees_Filtered.csv", "text/csv")
+    st.download_button("📥 Download Departed Employees CSV", csv_exit, "Exit_Employees_Filtered.csv", "text/csv")
 
 st.markdown("---")
 st.markdown("""
