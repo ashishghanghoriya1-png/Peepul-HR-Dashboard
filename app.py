@@ -7,6 +7,7 @@ import json
 import urllib.request
 import os
 import base64
+import io
 from datetime import datetime
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.preprocessing import OrdinalEncoder
@@ -689,6 +690,82 @@ with tab1:
         ]
         st.dataframe(nonreg_exits_df, use_container_width=True)
 
+    # --------------------------------------------------------------------------
+    # INTERACTIVE SANKEY FLOW DIAGRAM: DEPARTMENT -> TENURE -> EXIT REASON
+    # --------------------------------------------------------------------------
+    st.markdown("---")
+    st.subheader("🔀 Employee Flight Flow: Department → Tenure Band → Exit Reason")
+    st.markdown("Interactive flow diagram tracking how staff move from their department into tenure categories and root exit drivers.")
+
+    if len(filtered_exit) > 0:
+        sankey_df = filtered_exit[['Department', 'Tenure Band', 'Cleaned Reason']].dropna()
+        
+        dept_nodes = sorted(sankey_df['Department'].unique().tolist())
+        tenure_nodes = sorted(sankey_df['Tenure Band'].unique().tolist())
+        reason_nodes = sorted(sankey_df['Cleaned Reason'].unique().tolist())
+        
+        all_labels = dept_nodes + tenure_nodes + reason_nodes
+        label_map = {lbl: i for i, lbl in enumerate(all_labels)}
+        
+        # Flow 1: Department -> Tenure Band
+        f1 = sankey_df.groupby(['Department', 'Tenure Band']).size().reset_index(name='value')
+        src1 = [label_map[d] for d in f1['Department']]
+        tgt1 = [label_map[t] for t in f1['Tenure Band']]
+        val1 = f1['value'].tolist()
+        
+        # Flow 2: Tenure Band -> Exit Reason
+        f2 = sankey_df.groupby(['Tenure Band', 'Cleaned Reason']).size().reset_index(name='value')
+        src2 = [label_map[t] for t in f2['Tenure Band']]
+        tgt2 = [label_map[r] for r in f2['Cleaned Reason']]
+        val2 = f2['value'].tolist()
+        
+        fig_sankey = go.Figure(data=[go.Sankey(
+            node=dict(
+                pad=18,
+                thickness=18,
+                line=dict(color="#0F172A", width=0.5),
+                label=all_labels,
+                color=["#00F2FE"] * len(dept_nodes) + ["#7B2CBF"] * len(tenure_nodes) + ["#FF007F"] * len(reason_nodes)
+            ),
+            link=dict(
+                source=src1 + src2,
+                target=tgt1 + tgt2,
+                value=val1 + val2,
+                color="rgba(0, 242, 254, 0.25)"
+            )
+        )])
+        fig_sankey = apply_plotly_theme(fig_sankey, "Interactive Workforce Departure Sankey Flow")
+        st.plotly_chart(fig_sankey, use_container_width=True)
+    else:
+        st.info("No departures recorded in current filter selection.")
+
+    # --------------------------------------------------------------------------
+    # INTERACTIVE WHAT-IF ATTRITION & COST SAVINGS SIMULATOR
+    # --------------------------------------------------------------------------
+    st.markdown("---")
+    st.subheader("💡 Interactive Attrition & Cost Savings Simulator")
+    st.markdown("Model the financial and headcount savings achieved by reducing staff turnover in the peak 1–2 year service window.")
+
+    sim_c1, sim_c2 = st.columns([1, 2])
+    with sim_c1:
+        target_reduction = st.slider("Target Reduction in 1–2 Year Exits (%):", min_value=5, max_value=50, value=20, step=5)
+        cost_per_exit = st.number_input("Est. Hiring & Replacement Cost per Staff (₹):", min_value=25000, max_value=1000000, value=150000, step=25000)
+
+    with sim_c2:
+        exits_1_2 = len(filtered_exit[filtered_exit['Tenure Band'] == '1-2 Years'])
+        saved_exits = int(np.round(exits_1_2 * (target_reduction / 100.0)))
+        saved_cost = saved_exits * cost_per_exit
+        new_exits_total = max(exits_cnt - saved_exits, 0)
+        new_attrition = (new_exits_total / avg_hc) * 100.0 if avg_hc > 0 else 0
+        
+        sc1, sc2, sc3 = st.columns(3)
+        with sc1:
+            st.markdown(f'<div class="metric-card"><div class="metric-title">Exits Prevented</div><div class="metric-value">+{saved_exits} Staff</div><div class="metric-subtitle">Retained Employees</div></div>', unsafe_allow_html=True)
+        with sc2:
+            st.markdown(f'<div class="metric-card"><div class="metric-title">Financial Savings</div><div class="metric-value">₹{saved_cost:,}</div><div class="metric-subtitle">Recruitment Cost Saved</div></div>', unsafe_allow_html=True)
+        with sc3:
+            st.markdown(f'<div class="metric-card"><div class="metric-title">New Turnover Rate</div><div class="metric-value">{new_attrition:.1f}%</div><div class="metric-subtitle">Reduced from {attrition_rate:.1f}%</div></div>', unsafe_allow_html=True)
+
 # ------------------------------------------------------------------------------
 # TAB 2: RECRUITMENT SPEED & HIRING SOURCE ROI
 # ------------------------------------------------------------------------------
@@ -861,6 +938,37 @@ with tab3:
         fig_gcomp.update_traces(texttemplate='%{text}%', textposition='outside')
         fig_gcomp = apply_plotly_theme(fig_gcomp, "Gender Mix Comparison (%)")
         st.plotly_chart(fig_gcomp, use_container_width=True)
+
+    # --------------------------------------------------------------------------
+    # MANAGER FLIGHT RISK SCORECARD
+    # --------------------------------------------------------------------------
+    st.markdown("---")
+    st.subheader("🚨 Manager Flight Risk Scorecard")
+    st.markdown("Audits team managers based on direct report span ($>5$ reports) and historical staff turnover risk.")
+
+    mgr_act = filtered_emp.groupby('Reporting To (Manager Name)').size().reset_index(name='Direct Reports (Span)')
+    mgr_ext = filtered_exit.groupby('Reporting To (Manager Name)').size().reset_index(name='Staff Exits')
+    mgr_vol = filtered_exit[filtered_exit['Exit Category'] == 'Regretted Exit'].groupby('Reporting To (Manager Name)').size().reset_index(name='Voluntary Exits')
+
+    mgr_sc = pd.merge(mgr_act, mgr_ext, on='Reporting To (Manager Name)', how='left').fillna(0)
+    mgr_sc = pd.merge(mgr_sc, mgr_vol, on='Reporting To (Manager Name)', how='left').fillna(0)
+    mgr_sc['Staff Exits'] = mgr_sc['Staff Exits'].astype(int)
+    mgr_sc['Voluntary Exits'] = mgr_sc['Voluntary Exits'].astype(int)
+
+    mgr_sc = mgr_sc[~mgr_sc['Reporting To (Manager Name)'].isin(['-', '', 'nan', 'General / Unassigned'])]
+
+    def tag_manager_risk(row):
+        if row['Direct Reports (Span)'] > 5 and row['Staff Exits'] >= 2:
+            return '🔴 High Risk (High Span & Multiple Exits)'
+        elif row['Direct Reports (Span)'] > 5 or row['Staff Exits'] >= 1:
+            return '🟡 Moderate Watch'
+        return '🟢 Healthy Span'
+
+    mgr_sc['Risk Assessment'] = mgr_sc.apply(tag_manager_risk, axis=1)
+    mgr_sc['Turnover %'] = (mgr_sc['Staff Exits'] / mgr_sc['Direct Reports (Span)'] * 100).round(1)
+    mgr_sc = mgr_sc.sort_values(by=['Staff Exits', 'Direct Reports (Span)'], ascending=[False, False])
+
+    st.dataframe(mgr_sc.rename(columns={'Reporting To (Manager Name)': 'Manager Name'}), use_container_width=True)
 
 # ------------------------------------------------------------------------------
 # TAB 4: EXIT & ATTRITION DEEP-DIVE
@@ -1112,6 +1220,59 @@ with tab6:
     st.dataframe(filtered_exit, use_container_width=True)
     csv_exit = filtered_exit.to_csv(index=False).encode('utf-8')
     st.download_button("📥 Download Departed Employees CSV", csv_exit, "Exit_Employees_Filtered.csv", "text/csv")
+
+    st.markdown("---")
+    st.subheader("📦 One-Click Multi-Sheet Executive Excel Workbook Export")
+    st.markdown("Export all active, exit, hiring, and AI predictive datasets into a single structured multi-tab Excel workbook.")
+
+    excel_buffer = io.BytesIO()
+    with pd.ExcelWriter(excel_buffer, engine='openpyxl') as writer:
+        filtered_emp.to_excel(writer, sheet_name='Active Employees', index=False)
+        filtered_exit.to_excel(writer, sheet_name='Departed Employees', index=False)
+        df_roles_closed.to_excel(writer, sheet_name='Closed Roles', index=False)
+        filtered_hiring.to_excel(writer, sheet_name='Active Hiring', index=False)
+        filt_res_clf.to_excel(writer, sheet_name='AI Exit Risk Predictions', index=False)
+        filt_hir_pred.to_excel(writer, sheet_name='AI Hiring Speed Forecast', index=False)
+
+    excel_buffer.seek(0)
+    st.download_button(
+        label="📊 Download Full Multi-Sheet HR Excel Report (.xlsx)",
+        data=excel_buffer,
+        file_name="Peepul_Executive_HR_Report.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
+    st.markdown("---")
+    st.subheader("📝 Download Executive Summary Brief")
+    exec_brief_text = f"""# PEEPUL HR ANALYTICS EXECUTIVE BRIEF
+Generated: {datetime.now().strftime('%d %B %Y')}
+
+## 1. WORKFORCE DYNAMICS OVERVIEW
+- Active Staff: {active_hc:,}
+- Total Exits: {exits_cnt:,}
+- Turnover Rate: {attrition_rate:.1f}%
+- Retention Rate: {retention_rate:.1f}%
+- Net Growth: +{net_growth:,}
+
+## 2. RECRUITMENT & HIRING SPEED
+- Avg Hiring TAT: {avg_tat:.1f} Days
+- Active Open Roles: {open_roles}
+- Open Positions: {open_positions}
+- Vacancy Rate: {vacancy_rate:.1f}%
+
+## 3. PREDICTIVE AI RISK METRICS
+- High Exit Risk Staff: {high_risk_cnt} employees (>60% probability)
+- Avg Exit Risk Score: {avg_risk_score:.1f}%
+- High SLA Risk Roles: {high_sla_roles} roles (>75 days forecast fill time)
+
+- Prepared by Ashish | Peepul HR Intelligence Platform
+"""
+    st.download_button(
+        label="📄 Download Executive Brief (.txt)",
+        data=exec_brief_text.encode('utf-8'),
+        file_name="Peepul_Executive_HR_Brief.txt",
+        mime="text/plain"
+    )
 
 st.markdown("---")
 st.markdown("""
